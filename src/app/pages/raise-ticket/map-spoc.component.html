@@ -1,0 +1,113 @@
+<!-- Same markup as the admin panel's address-spoc drawer. -->
+<form nz-form #ContactMasterPage="ngForm" class="cp-admin-form" (ngSubmit)="$event.preventDefault()">
+  <nz-spin [nzSpinning]="isSpinning">
+    <div nz-row class="my-box">
+      <div nz-col nzSpan="6">
+        <nz-form-item>
+          <nz-form-label nzRequired nzNoColon>Full Name</nz-form-label>
+          <nz-form-control nzErrorTip="Please Enter Full Name">
+            <input nz-input name="FullName" [(ngModel)]="formData.FULL_NAME" placeholder="Enter Full Name" maxlength="100"
+              autocomplete="off" required (focus)="isFocused = 'name'" (blur)="isFocused = ''" />
+            <h6 class="char-counter" *ngIf="isFocused === 'name'">
+              {{ formData.FULL_NAME ? formData.FULL_NAME.length : 0 }}/100
+            </h6>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzSpan="6">
+        <nz-form-item>
+          <nz-form-label nzRequired nzNoColon>Email ID</nz-form-label>
+          <nz-form-control nzErrorTip="Please Enter Email ID">
+            <input nz-input name="EmailID" [(ngModel)]="formData.EMAIL_ID" placeholder="Enter Email ID" maxlength="100"
+              autocomplete="off" required (focus)="isFocused = 'email'" (blur)="isFocused = ''" type="email" />
+            <h6 class="char-counter" *ngIf="isFocused === 'email'">
+              {{ formData.EMAIL_ID ? formData.EMAIL_ID.length : 0 }}/100
+            </h6>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzSpan="5" class="mobile">
+        <nz-form-item>
+          <nz-form-label nzNoColon>Mobile No</nz-form-label>
+          <nz-form-control class="mobile-input-control">
+            <nz-select name="countrycode" [(ngModel)]="formData.COUNTRY_CODE" [nzOptionOverflowSize]="5" nzShowSearch
+              [nzDropdownMatchSelectWidth]="false" nzPlaceHolder="Code" (ngModelChange)="onCountryCodeChange($event)">
+              <nz-option *ngFor="let option of countryCodes" [nzValue]="option.value" [nzLabel]="option.label"></nz-option>
+            </nz-select>
+            <input nz-input name="MobileNo" [(ngModel)]="formData.MOBILE_NUMBER" (keypress)="omit($event)"
+              [placeholder]="placeholder(formData.COUNTRY_CODE)" [maxlength]="maxLength(formData.COUNTRY_CODE)"
+              autocomplete="off" (focus)="isFocused = 'mobile'" (blur)="isFocused = ''" type="tel" />
+            <h6 class="char-counter" *ngIf="isFocused === 'mobile'">
+              {{ formData.MOBILE_NUMBER ? formData.MOBILE_NUMBER.length : 0 }}/{{ maxLength(formData.COUNTRY_CODE) }}
+            </h6>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzSpan="3">
+        <nz-form-item>
+          <nz-form-label nzNoColon>Is Primary?</nz-form-label>
+          <nz-form-control>
+            <nz-switch name="IsPrimary" nzCheckedChildren="Yes" nzUnCheckedChildren="No" [(ngModel)]="formData.IS_PRIMARY"></nz-switch>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzSpan="2">
+        <nz-form-item>
+          <nz-form-label nzNoColon>Status</nz-form-label>
+          <nz-form-control>
+            <nz-switch name="Status" nzCheckedChildren="On" nzUnCheckedChildren="Off" [(ngModel)]="formData.IS_ACTIVE"></nz-switch>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzSpan="2" class="action-button-container">
+        <nz-form-item>
+          <nz-form-label nzNoColon></nz-form-label>
+          <nz-form-control>
+            <button nz-button type="button" nzType="primary" [nzSize]="'small'" (click)="mapSpoc()" nzTooltipTitle="Map Spoc"
+              nz-tooltip>{{ editingIndex !== null ? 'Update' : 'Add SPOC' }}</button>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+  </nz-spin>
+</form>
+<nz-divider></nz-divider>
+<nz-table #contactTable class="cp-admin-form" [nzData]="contactData" [nzPageSize]="pageSize" [nzSize]="'small'"
+  [(nzPageIndex)]="pageIndex">
+  <thead>
+    <tr>
+      <th>Action</th>
+      <th>Full Name</th>
+      <th>Email ID</th>
+      <th>Mobile No</th>
+      <th>Is Primary</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let data of contactTable.data; let i = index">
+      <td align="center">
+        <nz-tag nzColor="#1677ff" (click)="editContact(data, i)" class="edit-contact-tag" nz-tooltip nzTooltipTitle="Edit Contact">
+          <span nz-icon nzType="edit" nzTheme="outline" class="font-10"></span>&nbsp;&nbsp;Edit</nz-tag>
+      </td>
+      <td>{{ data.FULL_NAME }}</td>
+      <td>{{ data.EMAIL_ID }}</td>
+      <td align="center">
+        <span *ngIf="data.MOBILE_NUMBER">{{ data.COUNTRY_CODE || '' }}&nbsp;</span>{{ data.MOBILE_NUMBER || '-' }}
+      </td>
+      <td align="center">
+        <i nz-icon *ngIf="data.IS_PRIMARY" nzType="check-circle" nzTheme="twotone" nzTwotoneColor="#52c41a"></i>
+        <i nz-icon *ngIf="!data.IS_PRIMARY" nzType="close-circle" nzTheme="twotone" nzTwotoneColor="#f50"></i>
+      </td>
+      <td align="center">
+        <i nz-icon *ngIf="data.IS_ACTIVE" nzType="check-circle" nzTheme="twotone" nzTwotoneColor="#52c41a"></i>
+        <i nz-icon *ngIf="!data.IS_ACTIVE" nzType="close-circle" nzTheme="twotone" nzTwotoneColor="#f50"></i>
+      </td>
+    </tr>
+  </tbody>
+</nz-table>
+<div class="footer">
+  <button type="button" nz-button (click)="close()" class="ant-btn cancel-button">
+    <span>Cancel</span>
+  </button>
+</div>

@@ -1,0 +1,181 @@
+<main class="page">
+  <section class="sheet">
+    <!-- Page header -->
+    <div class="head">
+      <div class="title-row">
+        <button class="backarrow" type="button" (click)="router.navigate(['/dashboard'])" aria-label="Back to dashboard">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+        </button>
+        <div>
+          <div class="title">Raise tickets</div>
+          <div class="subtitle">Showing {{ cards.length }} of {{ total }} · {{ dateLabel }}</div>
+        </div>
+      </div>
+      <div class="head-actions">
+        <button class="icon-btn" type="button" (click)="exportCsv()" [disabled]="exporting || !total" title="Export to Excel (CSV)" aria-label="Export">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4A515C" stroke-width="2" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9.5 12.5l5 5M14.5 12.5l-5 5"/></svg>
+        </button>
+        <button class="new-order-btn" type="button" (click)="raise()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          Raise a ticket
+        </button>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="search">
+        <input type="text" [(ngModel)]="search" (keyup)="onSearchKey($event)" placeholder="Search order ID, customer or contact — min 3 characters" aria-label="Search work orders">
+        <button type="button" class="search-btn" (click)="runSearch()" aria-label="Search">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+        </button>
+      </div>
+      <button type="button" class="filters-toggle" [class.active]="filtersOpen" (click)="filtersOpen = !filtersOpen">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 5h16l-6 7.5V19l-4 1.5v-8z"/></svg>
+        Filters
+        <span class="count-badge" *ngIf="activeFilterCount">{{ activeFilterCount }}</span>
+      </button>
+      <div class="view-toggle">
+        <button type="button" [class.on]="view === 'grid'" (click)="setView('grid')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1"/></svg>
+          Grid
+        </button>
+        <button type="button" [class.on]="view === 'list'" (click)="setView('list')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>
+          List
+        </button>
+      </div>
+    </div>
+
+    <!-- Filter panel -->
+    <div class="filter-panel" *ngIf="filtersOpen">
+      <div class="filter-grid">
+        <label class="filter-field" *ngIf="isStaff">
+          <span>Customer</span>
+          <select class="select" [ngModel]="customerId" (ngModelChange)="onCustomer($event)">
+            <option [ngValue]="null">All customers</option>
+            <option *ngFor="let c of customers" [ngValue]="c.ID">{{ c.NAME }}</option>
+          </select>
+        </label>
+        <label class="filter-field">
+          <span>Status</span>
+          <select class="select" [ngModel]="status" (ngModelChange)="onStatus($event)">
+            <option [ngValue]="null">Any status</option>
+            <option *ngFor="let s of statusOptions" [ngValue]="s.id">{{ s.label }}</option>
+          </select>
+        </label>
+      </div>
+      <div class="date-row">
+        <span class="filter-label">Date range</span>
+        <div class="date-pills">
+          <button *ngFor="let p of datePresets" type="button" class="date-pill" [class.on]="datePreset === p.value" (click)="selectPreset(p.value)">{{ p.label }}</button>
+        </div>
+        <div class="custom-range">
+          <input class="input" type="date" [(ngModel)]="fromDate" (change)="applyCustomRange()" aria-label="From date">
+          <span>–</span>
+          <input class="input" type="date" [(ngModel)]="toDate" (change)="applyCustomRange()" aria-label="To date">
+        </div>
+        <span class="spacer"></span>
+        <button type="button" class="reset-link" (click)="resetAll()">Reset all</button>
+      </div>
+    </div>
+
+    <div class="loading" *ngIf="loading && !cards.length">Loading…</div>
+
+    <!-- Grid -->
+    <div class="grid" *ngIf="cards.length && view === 'grid'">
+      <article class="cardstyle clickable" *ngFor="let c of cards" (click)="openOrder(c)" tabindex="0" (keydown.enter)="openOrder(c)">
+        <div class="card-top">
+          <span class="order-number-tag" [title]="c.row.ORDER_NUMBER">{{ c.row.ORDER_NUMBER }}</span>
+          <span class="spacer"></span>
+          <button type="button" class="card-action" *ngIf="canEdit(c)" (click)="edit(c, $event)" title="Edit Work Order">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>
+            Edit
+          </button>
+          <button type="button" class="card-action" (click)="duplicate(c, $event)" title="Duplicate Work Order">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="1.5"/><path d="M16 8V4H5a1 1 0 00-1 1v12h4"/></svg>
+            Duplicate
+          </button>
+        </div>
+        <div class="line split">
+          <span class="ellipsis">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4A515C" stroke-width="1.8" aria-hidden="true"><path d="M4 21V5l8-3v19"/><path d="M12 8h8v13"/><path d="M2 21h20"/><path d="M7.5 8h1M7.5 12h1M7.5 16h1M15.5 12h1M15.5 16h1"/></svg>
+            {{ c.org }}
+          </span>
+          <a class="phone" *ngIf="c.row.MOBILE_NO" [href]="'tel:' + c.row.MOBILE_NO" (click)="$event.stopPropagation()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 3.5h3.2l1.6 4.2-2.1 1.3a11 11 0 006.3 6.3l1.3-2.1 4.2 1.6V18a2.5 2.5 0 01-2.7 2.5A16.5 16.5 0 012.5 6.2 2.5 2.5 0 015 3.5z"/></svg>
+            {{ c.row.MOBILE_NO }}
+          </a>
+        </div>
+        <div class="line" *ngIf="c.showContact">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4A515C" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20.5c.8-3.8 3.8-6 7.5-6s6.7 2.2 7.5 6"/></svg>
+          {{ c.contact }}
+        </div>
+        <div class="line addr">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#99A0AB" stroke-width="2" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg>
+          <span class="three-lines" [title]="c.address">{{ c.address }}</span>
+        </div>
+        <div class="line meta"><span class="meta-label">Priority:</span><span class="meta-value">{{ c.row.PRIORITY_NAME }}</span></div>
+        <div class="line meta" [title]="c.techSummary"><span class="meta-label">Technician:</span><span class="meta-value ellipsis">{{ c.techSummary }}</span></div>
+        <div class="line datetime" [title]="c.created.full"><span class="meta-label">Order Created:</span>{{ c.created.full }}</div>
+        <div class="line datetime" [title]="c.preferred.full"><span class="meta-label">Preferred:</span>{{ c.preferred.full }}</div>
+        <div class="card-footer"></div>
+        <div class="status-row"><span class="status-tag" [style.background]="c.status.color">{{ c.status.label }}</span></div>
+      </article>
+    </div>
+
+    <!-- List -->
+    <div class="table-wrap" *ngIf="cards.length && view === 'list'">
+      <table class="order-list-table">
+        <thead>
+          <tr>
+            <th class="col-id">Order ID</th><th class="col-customer">Customer</th><th class="col-address">Service Address</th>
+            <th class="col-tech">Technician</th><th class="col-date">Preferred</th><th class="col-priority">Priority</th>
+            <th class="col-date">Created</th><th class="col-status">Status</th><th class="col-chev"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of cards" class="clickable" (click)="openOrder(c)">
+            <td class="col-id">
+              <span class="order-number-tag small-tag">{{ c.row.ORDER_NUMBER }}</span>
+              <button type="button" class="row-action" *ngIf="canEdit(c)" (click)="edit(c, $event)" title="Edit Work Order" aria-label="Edit">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>
+              </button>
+              <button type="button" class="row-action" (click)="duplicate(c, $event)" title="Duplicate Work Order" aria-label="Duplicate">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="1.5"/><path d="M16 8V4H5a1 1 0 00-1 1v12h4"/></svg>
+              </button>
+            </td>
+            <td class="col-customer">
+              <div class="list-customer-name" [title]="c.org">{{ c.org }}</div>
+              <div class="list-customer-sub" *ngIf="c.showContact">{{ c.contact }}</div>
+              <div class="list-customer-sub">{{ c.row.MOBILE_NO }}</div>
+            </td>
+            <td class="col-address"><span class="three-lines" [title]="c.address">{{ c.address }}</span></td>
+            <td class="col-tech">
+              <div class="list-tech" [class.empty]="!c.hasTech" [title]="c.techNames">{{ c.techNames }}</div>
+              <div class="list-customer-sub" *ngIf="c.techMobiles">{{ c.techMobiles }}</div>
+            </td>
+            <td class="col-date" [title]="c.preferred.full"><div class="list-date">{{ c.preferred.date }}</div><div class="list-time">{{ c.preferred.time }}</div></td>
+            <td class="col-priority">{{ c.row.PRIORITY_NAME }}</td>
+            <td class="col-date" [title]="c.created.full"><div class="list-date">{{ c.created.date }}</div><div class="list-time">{{ c.created.time }}</div></td>
+            <td class="col-status"><span class="status-tag" [style.background]="c.status.color">{{ c.status.label }}</span></td>
+            <td class="col-chev">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#79808C" stroke-width="2.2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="load-more" *ngIf="total > cards.length && cards.length">
+      <button type="button" class="load-more-btn" (click)="loadMore()" [disabled]="loading">
+        {{ loading ? 'Loading…' : 'Load More (' + cards.length + '/' + total + ')' }}
+      </button>
+    </div>
+
+    <div class="empty" *ngIf="!loading && !cards.length">
+      <b>No work orders found</b>
+      <span>Try a different search or reset the filters.</span>
+    </div>
+  </section>
+</main>

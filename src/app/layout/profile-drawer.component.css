@@ -1,0 +1,46 @@
+.pad { padding: 16px; }
+.avatar-lg { width: 56px; height: 56px; flex-shrink: 0; border-radius: 999px; background: var(--brand-tint); border: 2px solid var(--brand-tint-border); color: var(--brand); font-size: 18px; font-weight: 800; display: grid; place-items: center; margin-right: 6px; }
+.name { font-size: 17px; font-weight: 800; }
+.scope { display: inline-block; margin-top: 12px; font-size: 11.5px; font-weight: 700; color: var(--ink-2); background: var(--bg); border: 1px solid var(--border); border-radius: 999px; padding: 3px 9px; }
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+.tile { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 13px; }
+.tile b { display: block; font-size: 20px; font-weight: 800; }
+.tile span { display: block; font-size: 11.5px; font-weight: 700; color: var(--muted); margin-top: 2px; }
+.section { margin: 20px 0 10px; }
+.small-text { font-size: 12.5px; line-height: 1.5; margin-top: 3px; }
+.list { overflow: hidden; }
+.list > button, .list .item { width: 100%; display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: transparent; border: none; border-bottom: 1px solid var(--row-line); text-align: left; }
+.list > button:last-child, .list .item:last-child { border-bottom: none; }
+.list > button:hover { background: var(--brand-tint); }
+.list b { display: block; font-size: 14px; font-weight: 700; color: var(--ink); }
+.list small { display: block; font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.chev { font-size: 20px; color: var(--faint); }
+.time { width: 108px; height: 36px; }
+.prefs { display: flex; flex-direction: column; gap: 14px; }
+.logout { width: 100%; height: 44px; margin-top: 20px; }
+.search-box { display: flex; gap: 8px; }
+.note { font-size: 12.5px; line-height: 1.5; margin: 12px 0 14px; }
+.addr { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; font-size: 13px; line-height: 1.5; }
+.addr.default { border: 1.5px solid var(--brand-tint-border); box-shadow: 0 2px 8px rgba(176, 16, 42, .06); }
+.addr-name { margin-top: 8px; font-size: 14px; }
+.addr .tag { background: var(--bg); border-color: var(--border); color: var(--ink-2); }
+.addr .tag.def { background: var(--brand-tint); border-color: var(--brand-tint-border); color: var(--brand); }
+.contact { margin-top: 6px; padding-top: 8px; border-top: 1px solid var(--row-line); }
+.pager { margin-top: 6px; }
+.faq:hover { background: var(--surface-2) !important; }
+.answer { padding: 0 16px 14px; font-size: 13px; line-height: 1.6; color: var(--ink-3); background: var(--surface-2); border-bottom: 1px solid var(--row-line); }
+.contact-card { margin-top: 14px; }
+.contact-card p { margin: 6px 0 0; font-size: 13px; line-height: 1.5; }
+.viewing { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; margin: -18px -18px 18px; padding: 14px 18px; background: var(--surface); border-bottom: 1px solid var(--border-soft); }
+.viewing .row { align-self: stretch; }
+.viewing-label { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.role-pill { font-size: 13px; font-weight: 600; color: var(--brand); background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 5px 14px; }
+.scope-pill { font-size: 12.5px; font-weight: 600; color: var(--warn); background: var(--warn-tint); border: 1px solid var(--warn-border); border-radius: 999px; padding: 4px 12px; }
+.row.top { align-items: flex-start; }
+.ico { width: 36px; height: 36px; flex-shrink: 0; border-radius: 10px; background: var(--brand-tint); display: grid; place-items: center; margin-right: 4px; }
+.title-sm { font-size: 14.5px; }
+.notify-foot { margin-top: 13px; padding-top: 13px; border-top: 1px solid var(--row-line); font-size: 12.5px; }
+.state-pill { font-size: 11.5px; font-weight: 700; color: var(--good); background: var(--good-tint); border: 1px solid var(--good-border); border-radius: 999px; padding: 4px 10px; }
+.state-pill.off { color: var(--muted); background: var(--bg); border-color: var(--border); }
+.ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.li-ico { flex-shrink: 0; }

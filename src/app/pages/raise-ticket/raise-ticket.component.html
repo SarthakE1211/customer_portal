@@ -1,0 +1,503 @@
+<div class="screen cp-admin-form" role="dialog" aria-modal="true" aria-label="Raise a ticket">
+  <header class="bar">
+    <button class="close" type="button" (click)="close()" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <h1>{{ isDuplicate ? 'Duplicate Raise a Ticket' : editId ? 'Edit Raise a Ticket' : 'Raise a ticket' }}</h1>
+  </header>
+
+  <!-- Same markup and classes as the admin panel's ordercreatedrawer. -->
+  <form class="drawer-body" #raiseTicketForm="ngForm" (ngSubmit)="$event.preventDefault()">
+    <nz-spin [nzSpinning]="isSpinning" class="formspin">
+      <div nz-row class="orderform-shell">
+        <div nz-col nzSpan="14" class="paddtin10 formcol formcol-left">
+          <!-- ── Customer Information ─────────────────────────────────────── -->
+          <div class="my-box">
+            <div nz-row *ngIf="!editId">
+              <div nz-col nzSpan="24" class="sectionhead">
+                <span class="pridet">Customer Information</span>
+              </div>
+              <div nz-col nzSpan="12">
+                <nz-form-item class="padiingg-44">
+                  <nz-form-label nzNoColon>Organization Name</nz-form-label>
+                  <nz-form-control nzErrorTip="Please Select Organization Name">
+                    <nz-select nzShowSearch nzAllowClear class="drop-width" nzPlaceHolder="Select Organization Name"
+                      [ngModel]="organizationName" (ngModelChange)="selectOrgName($event)" name="Organizationname" [nzDisabled]="!!editId"
+                      [nzOptionOverflowSize]="8" [nzOptionHeightPx]="30">
+                      <nz-option *ngFor="let org of organizations" [nzValue]="org" [nzLabel]="org"></nz-option>
+                    </nz-select>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+              <div nz-col nzSpan="12" class="d-flex">
+                <nz-form-item class="drop-width">
+                  <nz-form-label nzRequired nzNoColon>Customer Name</nz-form-label>
+                  <nz-form-control nzErrorTip="Please Select Customer">
+                    <nz-select nzShowSearch class="drop-width" nzPlaceHolder="Select Customer" [ngModel]="customerId"
+                      (ngModelChange)="selectCustomer($event)" name="customerName" [nzDisabled]="!!editId" [nzOptionOverflowSize]="4"
+                      [nzOptionHeightPx]="60" [nzFilterOption]="customerFilter">
+                      <nz-option nzCustomContent *ngFor="let customer of customerOptions" [nzValue]="customer.ID"
+                        [nzLabel]="customerLabel(customer)">
+                        <div nz-row>
+                          <div *ngIf="!customer.COMPANY_NAME" nz-col nzSpan="24" class="custtype">
+                            <i nz-icon nzType="user" class="iconmargin-5"></i>
+                            {{ customer.SALUTATION || '' }} {{ customerLabel(customer) }}
+                          </div>
+                          <div *ngIf="customer.COMPANY_NAME" nz-col nzSpan="24" class="priname">
+                            <i nz-icon nzType="user" class="iconmargin-5"></i>
+                            {{ customer.SALUTATION || '' }} {{ customerLabel(customer) }}
+                          </div>
+                          <div *ngIf="customer.COMPANY_NAME" nz-col nzSpan="24" class="priname1">
+                            <svg height="17px" viewBox="0 0 48 48" width="17px" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                              <path clip-rule="evenodd" fill-rule="evenodd" d="M6,47V20c0-2.209,1.791-4,4-4l0,0v-4c0-1.104,0.896-2,2-2h2V2c0-0.552,0.447-1,1-1  s1,0.448,1,1v8h2c1.104,0,2,0.896,2,2v4l0,0l0,0c2.209,0,4,1.791,4,4v8h7v-6h4v-3h6v3h1v25H6z M18,13c0-0.552-0.447-1-1-1h-4  c-0.553,0-1,0.448-1,1v3h6V13z M22,20c0-1.104-0.896-2-2-2H10c-1.104,0-2,0.896-2,2v25h14V20z M31,30h-7v15h7V30z M40,24h-7v21h7V24  z M36,27h1c0.553,0,1,0.447,1,1v1c0,0.553-0.447,1-1,1h-1c-0.553,0-1-0.447-1-1v-1C35,27.447,35.447,27,36,27z M36,33h1  c0.553,0,1,0.447,1,1v1c0,0.553-0.447,1-1,1h-1c-0.553,0-1-0.447-1-1v-1C35,33.447,35.447,33,36,33z M36,39h1c0.553,0,1,0.447,1,1v1  c0,0.553-0.447,1-1,1h-1c-0.553,0-1-0.447-1-1v-1C35,39.447,35.447,39,36,39z M27,33h1c0.553,0,1,0.447,1,1v1c0,0.553-0.447,1-1,1  h-1c-0.553,0-1-0.447-1-1v-1C26,33.447,26.447,33,27,33z M27,39h1c0.553,0,1,0.447,1,1v1c0,0.553-0.447,1-1,1h-1  c-0.553,0-1-0.447-1-1v-1C26,39.447,26.447,39,27,39z M18,42h-1c-0.553,0-1-0.447-1-1v-1c0-0.552,0.447-1,1-1h1c0.553,0,1,0.448,1,1  v1C19,41.553,18.553,42,18,42z M18,36h-1c-0.553,0-1-0.447-1-1v-1c0-0.552,0.447-1,1-1h1c0.553,0,1,0.448,1,1v1  C19,35.553,18.553,36,18,36z M18,30h-1c-0.553,0-1-0.447-1-1v-1c0-0.552,0.447-1,1-1h1c0.553,0,1,0.448,1,1v1  C19,29.553,18.553,30,18,30z M18,24h-1c-0.553,0-1-0.447-1-1v-1c0-0.552,0.447-1,1-1h1c0.553,0,1,0.448,1,1v1  C19,23.553,18.553,24,18,24z M13,42h-1c-0.553,0-1-0.447-1-1v-1c0-0.553,0.447-1,1-1h1c0.553,0,1,0.447,1,1v1  C14,41.553,13.553,42,13,42z M13,36h-1c-0.553,0-1-0.447-1-1v-1c0-0.553,0.447-1,1-1h1c0.553,0,1,0.447,1,1v1  C14,35.553,13.553,36,13,36z M13,30h-1c-0.553,0-1-0.447-1-1v-1c0-0.552,0.447-1,1-1h1c0.553,0,1,0.448,1,1v1  C14,29.553,13.553,30,13,30z M13,24h-1c-0.553,0-1-0.447-1-1v-1c0-0.552,0.447-1,1-1h1c0.553,0,1,0.448,1,1v1  C14,23.553,13.553,24,13,24z"/>
+                            </svg>
+                            {{ customer.COMPANY_NAME }}
+                          </div>
+                          <div nz-col nzSpan="24" class="fontsiz-23col" *ngIf="customer.MOBILE_NO">
+                            <i nz-icon nzType="phone" class="icon-38c"></i>
+                            {{ customer.MOBILE_NO }}
+                          </div>
+                          <div nz-col nzSpan="24" *ngIf="customer.EMAIL" class="marginfont-12">
+                            <i nz-icon nzType="mail" class="colo-805"></i>
+                            {{ customer.EMAIL }}
+                          </div>
+                        </div>
+                      </nz-option>
+                    </nz-select>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+              <div nz-col nzSpan="12" class="d-flex">
+                <nz-form-item class="drop-width">
+                  <nz-form-label nzRequired nzNoColon>Service Address</nz-form-label>
+                  <nz-form-control>
+                    <nz-select nzShowSearch nzAllowClear class="drop-width" nzPlaceHolder="Select Service Address"
+                      [ngModel]="addressId" (ngModelChange)="onAddress($event)" name="address" [nzOptionHeightPx]="60"
+                      [nzOptionOverflowSize]="4" [nzFilterOption]="addressFilter" [nzLoading]="optionsLoading"
+                      [nzDisabled]="!customerId || !!editId">
+                      <nz-option nzCustomContent *ngFor="let address of addresses" [nzValue]="address.ID"
+                        [nzLabel]="addressLabel(address)">
+                        <div nz-row>
+                          <div nz-col nzSpan="24" class="preline-13">
+                            <i nz-icon nzType="home" class="icon-31c"></i>&nbsp;{{ address.ADDRESS_LINE_1 }}
+                            <ng-container *ngIf="address.ADDRESS_LINE_2">
+                              , {{ address.ADDRESS_LINE_2 }} {{ address.LANDMARK || '' }}
+                            </ng-container>
+                            -{{ address.PINCODE }}
+                          </div>
+                          <div nz-col nzSpan="24" class="fontsiz-23col">
+                            <i nz-icon nzType="global" class="marginrigt-5coll"></i>
+                            {{ address.STATE_NAME }},
+                            {{ address.COUNTRY_NAME }}
+                          </div>
+                          <div nz-col nzSpan="24" *ngIf="address.SITE_NUMBER" class="fontsiz-23col">
+                            Site: {{ address.SITE_NUMBER }}
+                          </div>
+                          <div nz-col nzSpan="24" class="marginfont-12">
+                            <i nz-icon nzType="tag" class="cor71"></i>
+                            Address Type:
+                            <span *ngIf="address.TYPE == 'H'">Home</span>
+                            <span *ngIf="address.TYPE == 'F'">Office</span>
+                            <span *ngIf="address.TYPE == 'B'">Branch</span>
+                            <span *ngIf="address.TYPE == 'O'">Other</span>
+                          </div>
+                        </div>
+                      </nz-option>
+                    </nz-select>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+              <div nz-col nzSpan="12">
+                <nz-form-item>
+                  <nz-form-label nzRequired nzNoColon>Source</nz-form-label>
+                  <nz-form-control nzErrorTip="Select Source">
+                    <nz-select class="drop-width" nzPlaceHolder="Select Source" [(ngModel)]="source" name="orderMedium"
+                      [nzDisabled]="true">
+                      <nz-option [nzValue]="SYSTEM_GENERATED_SOURCE" [nzLabel]="SYSTEM_GENERATED_SOURCE"></nz-option>
+                    </nz-select>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+              <div nz-col nzSpan="12">
+                <nz-form-item>
+                  <nz-form-label nzNoColon>Client Source Ticket Number</nz-form-label>
+                  <nz-form-control>
+                    <input nz-input class="drop-width" name="clientSourceTicketNumber" autocomplete="off" [disabled]="!!editId"
+                      placeholder="Enter Client Source Ticket Number" maxlength="100" [(ngModel)]="clientRef" />
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+              <div nz-col nzSpan="12">
+                <ng-container *ngTemplateOutlet="ticketTypeFields"></ng-container>
+              </div>
+            </div>
+
+            <!-- Edit: the order card in place of the customer fields, as in the panel. -->
+            <div *ngIf="editId && editCard as o">
+              <div nz-row class="backbbb">
+                <div class="mainnam textstarteai" nz-col nzSpan="14">
+                  <span class="bacgrond-f0f5" [attr.title]="o.ORDER_NUMBER">{{ o.ORDER_NUMBER }}</span>
+                </div>
+                <div class="mainnam textenddda" nz-col nzSpan="10">
+                  <span class="back-1dad" [attr.title]="o.ORDER_DATE">{{ o.ORDER_DATE }}</span>
+                </div>
+                <div class="subnam nowraphi" nz-col nzSpan="24">
+                  <div class="overfloawhiid-5">
+                    <span nz-icon nzType="user" nzTheme="outline" class="iconsapnri"></span>
+                    {{ o.CUSTOMER_NAME }}
+                  </div>
+                </div>
+                <div class="subnam padding-5nowrp" nz-col nzSpan="24">
+                  <span nz-icon nzType="mail" class="iconsapnri" nzTheme="outline"></span>
+                  {{ o.EMAIL }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  <span nz-icon nzType="mobile" class="iconsapnri" nzTheme="outline"></span>
+                  {{ o.MOBILE_NO }}
+                </div>
+                <div nz-col nzSpan="24" class="subnam textstartt5">
+                  <div class="overfoloehidden">
+                    <span nz-icon nzType="environment" nzTheme="outline" class="fontsizeimp iconsapnri"></span> {{ o.SERVICE_ADDRESS }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Edit mode has no customer fields, so Ticket Type gets its own row under the order card. -->
+            <div nz-row class="tickettyperow" *ngIf="editId">
+              <div nz-col nzSpan="12">
+                <ng-container *ngTemplateOutlet="ticketTypeFields"></ng-container>
+              </div>
+            </div>
+
+            <!-- ── Ticket Type: the billing basis, plus Number of Hours when it is Hours. ── -->
+            <ng-template #ticketTypeFields>
+            <div nz-row nzGutter="8">
+              <div nz-col [nzSpan]="ticketType === 'HOURS' ? 14 : 24">
+                <nz-form-item>
+                  <nz-form-label nzRequired nzNoColon>Ticket Type</nz-form-label>
+                  <nz-form-control nzErrorTip="Select Ticket Type">
+                    <nz-select class="drop-width" nzPlaceHolder="Select Ticket Type" name="ticketType"
+                      [(ngModel)]="ticketType" (ngModelChange)="onTicketTypeChange($event)">
+                      <nz-option *ngFor="let t of ticketTypes" [nzValue]="t.value" [nzLabel]="t.label"></nz-option>
+                    </nz-select>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+              <div nz-col nzSpan="10" *ngIf="ticketType === 'HOURS'">
+                <nz-form-item>
+                  <nz-form-label nzRequired nzNoColon>No. of Hours</nz-form-label>
+                  <nz-form-control [nzValidateStatus]="showTicketHoursError && !isTicketHoursValid() ? 'error' : ''"
+                    nzErrorTip="0.5 to 24, in half-hour steps">
+                    <nz-input-number class="drop-width" name="ticketHours" [(ngModel)]="ticketHours" [nzMin]="0.5"
+                      [nzMax]="24" [nzStep]="0.5" nzPlaceHolder="Hours"></nz-input-number>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+            </div>
+            </ng-template>
+
+            <!-- ── SPOC Details ── -->
+            <div nz-row class="spocblock" *ngIf="customerId && addressId">
+              <div nz-col nzSpan="24">
+                <span class="pridet">SPOC Details</span>
+              </div>
+              <div nz-col nzSpan="24" class="spocrow">
+                <nz-form-item class="padingleftt-00 spocselect">
+                  <nz-form-label nzRequired nzNoColon>Select SPOCs</nz-form-label>
+                  <nz-form-control nzErrorTip="Select SPOC">
+                    <nz-select class="drop-width" nzPlaceHolder="Select SPOC" [(ngModel)]="selectedSpoc" name="poc"
+                      [nzLoading]="isSpocLoading" [nzDisabled]="!customerId" (ngModelChange)="onSpocSelect($event)">
+                      <nz-option nzCustomContent *ngFor="let poc of spocList" [nzValue]="poc.ID" [nzLabel]="poc.FULL_NAME">
+                        <div nz-row>
+                          <div nz-col nzSpan="24" class="subname priname" [attr.title]="poc.FULL_NAME">
+                            <i nz-icon nzType="user" class="iconmargin-5"></i>
+                            {{ poc.FULL_NAME }}
+                          </div>
+                          <div nz-col nzSpan="24" class="subname fontsiz-23col" *ngIf="poc.MOBILE_NUMBER">
+                            <i nz-icon nzType="phone" class="icon-38c"></i>
+                            {{ poc.MOBILE_NUMBER }}
+                          </div>
+                          <div nz-col nzSpan="24" *ngIf="poc.EMAIL_ID" class="marginfont-12" [attr.title]="poc.EMAIL_ID">
+                            <i nz-icon nzType="mail" class="colo-805"></i>
+                            {{ poc.EMAIL_ID }}
+                          </div>
+                        </div>
+                      </nz-option>
+                    </nz-select>
+                  </nz-form-control>
+                </nz-form-item>
+                <button nz-button nzType="primary" type="button" nzTooltipTitle="Add SPOCs" nz-tooltip
+                  (click)="addressspocMappingSPOC()" class="lin-grad-btn newspocbtn">
+                  <span nz-icon nzType="plus" nzTheme="outline"></span>&nbsp;New SPOC
+                </button>
+                <div class="spoccards" *ngIf="selectedSpocs.length > 0">
+                  <div class="spoccard" *ngFor="let poc of selectedSpocs">
+                    <div class="spoccardbody">
+                      <div class="spocname" *ngIf="poc.FULL_NAME">
+                        <span class="spocnametxt" [attr.title]="poc.FULL_NAME">{{ poc.FULL_NAME }}</span>
+                        <nz-tag *ngIf="poc.IS_PRIMARY === 1" nzColor="blue" class="primarytext">Primary</nz-tag>
+                      </div>
+                      <div class="spocmeta" *ngIf="poc.EMAIL_ID" [attr.title]="poc.EMAIL_ID">
+                        <i nz-icon nzType="mail" nzTheme="outline"></i> {{ poc.EMAIL_ID }}
+                      </div>
+                      <div class="spocmeta" *ngIf="poc.MOBILE_NUMBER">
+                        <i nz-icon nzType="phone" nzTheme="outline"></i> {{ poc.MOBILE_NUMBER }}
+                      </div>
+                    </div>
+                    <button nz-button nzType="text" type="button" *ngIf="!poc.IS_PRIMARY" nzDanger nzSize="small"
+                      (click)="removeSpoc(poc.ID)" nz-tooltip nzTooltipTitle="Remove SPOC" nzTooltipPlacement="top">
+                      <i nz-icon nzType="delete" nzTheme="outline"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Type of Visit / Type of Work ── -->
+          <div class="my-box marginbotomm-0 workcard">
+            <div nz-row class="visitrow">
+              <div nz-col nzFlex="auto" class="visitcol">
+                <nz-form-label nzRequired nzNoColon class="picklabel">Type of Visit</nz-form-label>
+                <nz-radio-group class="visitgroup" name="typeOfVisit" [ngModel]="category"
+                  (ngModelChange)="onVisitChange($event)" *ngIf="visitTypes.length > 0">
+                  <label nz-radio *ngFor="let visit of visitTypes" [nzValue]="visit" class="visititem" [attr.title]="visit">
+                    <span class="visittext">{{ visit }}</span>
+                  </label>
+                </nz-radio-group>
+                <p class="emptyDataTex nodatavisit" *ngIf="visitTypes.length == 0">No Type of Visit Available.</p>
+              </div>
+              <div nz-col nzFlex="200px" class="techlevelcol">
+                <nz-form-label nzRequired nzNoColon class="picklabel">Tech Level</nz-form-label>
+                <nz-select class="drop-width" nzPlaceHolder="Select Tech Level" name="techLevel" [(ngModel)]="techLevelId"
+                  [nzLoading]="isTechLevelLoading">
+                  <nz-option *ngFor="let band of techLevels" [nzValue]="band.ID" [nzLabel]="band.NAME"></nz-option>
+                </nz-select>
+              </div>
+            </div>
+            <div nz-row class="pickrow">
+              <div nz-col nzSpan="12" class="pickcol">
+                <nz-form-label nzRequired nzNoColon class="picklabel">Type of Work</nz-form-label>
+                <div class="picklist">
+                  <nz-radio-group [ngModel]="work" name="typeOfWork" (ngModelChange)="onWorkChange($event)"
+                    class="picklistgroup" *ngIf="works.length > 0">
+                    <label nz-radio *ngFor="let w of works" [nzValue]="w" class="pickitem" [attr.title]="w">{{ w }}</label>
+                  </nz-radio-group>
+                  <p class="emptyDataTex nodatapick" *ngIf="works.length == 0">Select a Type of Visit to see the work types</p>
+                </div>
+              </div>
+              <div nz-col nzSpan="12" class="pickcol">
+                <nz-form-label nzNoColon class="picklabel">Service Catalogue</nz-form-label>
+                <div class="picklist">
+                  <nz-radio-group [(ngModel)]="serviceId" name="typeOfActivity" class="picklistgroup"
+                    *ngIf="catalogue.length > 0">
+                    <label nz-radio *ngFor="let activity of catalogue" [nzValue]="activity.ID" class="pickitem"
+                      [attr.title]="activity.NAME">{{ activity.NAME }}</label>
+                  </nz-radio-group>
+                  <p class="emptyDataTex nodatapick" *ngIf="catalogue.length == 0">Select a Type of Work to see activities</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div nz-col nzSpan="10" class="formcol formcol-right">
+          <div class="colscroll">
+            <!-- ── Priority Details ── -->
+            <div *ngIf="customerId && addressId" class="diccust">
+              <nz-form-item>
+                <div class="marginpadd0">
+                  <span class="pridet">Priority Details</span>
+                  <div class="overpad">
+                    <div nz-row class="widtmh-100">
+                      <div nz-col nzSpan="12" class="padding-0">
+                        <nz-form-item class="padding-lft">
+                          <nz-form-label nzRequired nzNoColon>Priority</nz-form-label>
+                          <nz-form-control nzErrorTip="Select priority">
+                            <nz-select class="drop-width" nzPlaceHolder="Select Priority" [ngModel]="priorityId"
+                              name="priority" (ngModelChange)="onPriorityChange($event)" [nzLoading]="optionsLoading"
+                              [nzDisabled]="!customerId">
+                              <nz-option nzCustomContent *ngFor="let priority of priorities" [nzValue]="priority.ID"
+                                [nzLabel]="priority.PRIORITY_NAME">
+                                <div nz-row>
+                                  <div nz-col nzSpan="24" class="subname priname">{{ priority.PRIORITY_NAME }}</div>
+                                  <div nz-col nzSpan="24" *ngIf="!priority.IS_CUSTOME_PRIORITY" class="marginfont-12">
+                                    Onsite Response Time <br> {{ readable(priority.RESPONSE_TIME) }}
+                                  </div>
+                                  <div nz-col nzSpan="24" *ngIf="priority.IS_CUSTOME_PRIORITY" class="marginfont-12">
+                                    {{ businessDays(priority) }}
+                                  </div>
+                                </div>
+                              </nz-option>
+                            </nz-select>
+                          </nz-form-control>
+                        </nz-form-item>
+                      </div>
+                      <div nz-col nzSpan="12" *ngIf="prioritydata && !prioritydata.IS_CUSTOME_PRIORITY">
+                        <nz-form-item class="padingleftt-00">
+                          <nz-form-label nzRequired nzNoColon>SLA Time</nz-form-label>
+                          <nz-form-control nzErrorTip="Select SLA time">
+                            <nz-select class="drop-width" nzPlaceHolder="Select SLA Time" [nzDisabled]="true"
+                              [nzShowArrow]="false" [(ngModel)]="slaTime" name="slaTime">
+                              <nz-option [nzValue]="prioritydata.RESPONSE_TIME" [nzLabel]="readable(prioritydata.RESPONSE_TIME)"></nz-option>
+                            </nz-select>
+                          </nz-form-control>
+                        </nz-form-item>
+                      </div>
+                      <div nz-col nzSpan="24" *ngIf="selectedAddress?.IANA_CODE">
+                        <nz-form-item class="padingleftt-00">
+                          <nz-form-label nzRequired nzNoColon> Preferred Start Date and Time</nz-form-label>
+                          <div class="displayyfelaxx">
+                            <div class="marginright-5">
+                              <nz-form-control>
+                                <nz-date-picker class="drop-width" [ngModel]="expectedDate" [nzDisabledDate]="disabledDate"
+                                  (ngModelChange)="setDate($event)" nzFormat="dd/MM/yyyy" nzPlaceHolder="Select Date"
+                                  name="expectedDate"></nz-date-picker>
+                              </nz-form-control>
+                            </div>
+                            <div>
+                              <nz-form-control>
+                                <nz-time-picker [(ngModel)]="time" nzPlaceHolder="Time" name="time" class="drop-width"
+                                  nzFormat="HH:mm" [nzMinuteStep]="minuteStep" (ngModelChange)="setTime($event)"
+                                  [nzAllowEmpty]="false" [nzDisabled]="!expectedDate" [nzDisabledHours]="getDisabledHours"
+                                  [nzDisabledMinutes]="getDisabledMinutes"></nz-time-picker>
+                              </nz-form-control>
+                            </div>
+                          </div>
+                        </nz-form-item>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </nz-form-item>
+            </div>
+
+            <!-- ── Work Order Details ── -->
+            <div class="diccust">
+              <div class="marginpadd0 detailwrap">
+                <span class="pridet">Enter Work Order Details</span>
+                <textarea nz-input class="details" [(ngModel)]="details" name="specialInstruction" maxlength="50000"
+                  placeholder="Enter Work Order Details Here..."></textarea>
+              </div>
+            </div>
+
+            <!-- ── Attachment ── -->
+            <div class="diccust">
+              <div class="marginpadd0 attachrow">
+                <span class="pridet">Attachment</span>
+                <span nz-icon nzType="info-circle" nzTheme="twotone" nz-tooltip
+                  nzTooltipTitle="Please upload attachment upto 2MB" class="attachinfo"></span>
+                <button nz-button type="button" class="uploadatt" nzTooltipTitle="Attach file" nz-tooltip
+                  (click)="image1.click()" [disabled]="uploading">
+                  <span nz-icon nzType="upload"></span>
+                  Upload Attachment
+                </button>
+                <input #image1 name="image1" type="file" accept="image/*, .pdf, .doc, .docx,video/*"
+                  (change)="onFileSelected($event)" class="display-nonn" />
+                <span *ngIf="uploading" class="uploadingspan">
+                  <i nz-icon nzType="loading" nzTheme="outline" class="iconloadd"></i>
+                </span>
+                <h6 *ngIf="attachmentName" class="docname">
+                  <span class="docsapn">{{ attachmentName }}</span>
+                  <i nz-icon nzType="delete" nzTheme="outline" class="viewdoc" (click)="deletedoc()"></i>
+                </h6>
+              </div>
+            </div>
+
+            <!-- ── Service for the selected activity + selection (as the panel) ── -->
+            <div class="diccust servicecard">
+              <div class="marginpadd0 servicecardbody">
+                <div nz-row>
+                  <div nz-col nzSpan="24" *ngIf="selectedService">
+                    <div class="servicenamee">{{ selectedService.WORK }}>{{ selectedService.NAME }}</div>
+                  </div>
+                </div>
+                <div class="servicepicklist">
+                  <div nz-row>
+                    <div nz-col nzSpan="24" *ngIf="selectedService as item">
+                      <div nz-row [ngClass]="{ 'bg-color-ser': cartService?.ID === item.ID }" class="backcolor-255">
+                        <div nz-col nzSpan="4">
+                          <div class="service-image">
+                            <img src="assets/Vantage_favicon.png" alt="Service Image" class="serviceimg" />
+                          </div>
+                        </div>
+                        <div nz-col nzSpan="20" class="paddingleft-5l">
+                          <div nz-row>
+                            <div nz-col nzSpan="18" class="subname fontweigh50001" [attr.title]="item.NAME">{{ item.NAME }}</div>
+                            <div nz-col nzSpan="6" class="textright">
+                              <button nz-button type="button" nzTooltipTitle="Select service to create work order"
+                                class="lin-grad-btn" *ngIf="!cartService" nz-tooltip nzType="primary" nzShape="round"
+                                nzSize="small" (click)="addToTable(item)">
+                                <span class="cardapan"><span nz-icon nzType="check" nzTheme="outline"></span>Select</span>
+                              </button>
+                            </div>
+                            <div nz-col nzSpan="24" class="quantity-5 mt-0">
+                              Work Order(Job) Created Directly ?: {{ item.IS_JOB_CREATED_DIRECTLY ? 'Yes' : 'No' }}
+                            </div>
+                            <div nz-col nzSpan="12" class="quantity-5">1 {{ item.UNIT_NAME || 'Quantity' }}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div nz-col nzSpan="24" class="servicecat" *ngIf="!selectedService">
+                      <p class="emptyDataTex noservice">No Service Available.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div *ngIf="cartService as cartItem" class="selectedwrap">
+                  <span class="pridet">Selected Service Details</span>
+                  <div class="overpad">
+                    <div class="cardstyle cartitemmf">
+                      <div nz-row>
+                        <div nz-col nzSpan="23" class="subname categoryc"
+                          [attr.title]="'Type of Visit > ' + cartItem.CATEGORY + ' > ' + cartItem.WORK">
+                          Type of Visit &gt; {{ cartItem.CATEGORY }}
+                        </div>
+                        <div nz-col nzSpan="1" class="subname">
+                          <span (click)="deleteService()" nz-icon nzType="delete" nzTheme="outline"
+                            nzTooltipTitle="Remove Service" nz-tooltip class="photospan"></span>
+                        </div>
+                      </div>
+                      <div nz-row>
+                        <div nz-col nzSpan="24" class="subname-ser-nm truncate-three-lines" [attr.title]="cartItem.NAME">
+                          {{ cartItem.NAME }}
+                        </div>
+                        <div nz-col nzSpan="24">
+                          <span class="graybrand" *ngIf="cartDescription" [attr.title]="cartDescription">{{ cartDescription }}</span>
+                        </div>
+                      </div>
+                      <div nz-row class="quntiitydiv">
+                        <div nz-col nzSpan="24">
+                          <small class="samllfont"> 1 <small class="qtygray">(Qty.)</small></small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Outside .colscroll so the action can never be scrolled off or clipped. -->
+          <div class="colfooter">
+            <button type="button" class="create-order-btn" nz-button nzType="primary" [nzLoading]="submitting"
+              [disabled]="uploading" nz-popconfirm (nzOnConfirm)="submit()" nzOkText="Yes"
+              [nzPopconfirmTitle]="editId ? 'Are you sure, you want to update information?' : isDuplicate ? 'Are you sure, you want to create a duplicate work order?' : 'Are you sure, you want to create work order?'"
+              nzPopconfirmPlacement="top">
+              <span>{{ editId ? 'Update Work Order' : 'Submit' }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </nz-spin>
+  </form>
+</div>
+
+<!-- New SPOC: the admin panel's Map SPOC(s) drawer. -->
+<nz-drawer [nzBodyStyle]="{ height: 'calc(100% - 55px)', overflow: 'auto', 'padding-bottom': '53px' }" [nzClosable]="true"
+  [nzMask]="true" [nzMaskClosable]="false" nzWidth="100%" [nzVisible]="spocDrawer" nzTitle=" Map SPOC(s)"
+  (nzOnClose)="closeSpocDrawer()" [nzKeyboard]="true">
+  <ng-container *nzDrawerContent>
+    <cp-map-spoc [customerId]="customerId!" [addressId]="addressId!" (closed)="closeSpocDrawer()"></cp-map-spoc>
+  </ng-container>
+</nz-drawer>

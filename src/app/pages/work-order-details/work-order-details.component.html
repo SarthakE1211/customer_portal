@@ -1,0 +1,484 @@
+<div class="screen cp-admin-form" role="dialog" aria-modal="true" aria-label="Work Order Details">
+  <header class="bar">
+    <button class="close" type="button" (click)="close()" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <h1>Work Order Details</h1>
+  </header>
+
+  <div class="drawer-body">
+    <nz-spin [nzSpinning]="isSpinning && !order" class="page-spin">
+      <!-- Same markup and classes as the admin panel's orderdetailsdrawer. -->
+      <div nz-row nzGutter="16" *ngIf="order">
+        <!-- ── Left column ── -->
+        <div class="gutter-row details-sidebar" nz-col nzSpan="7">
+          <div nz-row class="backbbb">
+            <div class="mainnam text-align-start d-flex-custom-sp-btn" nz-col nzSpan="24">
+              <span class="order-info-badge fs-11-imp" (click)="copy(o.ORDER_NUMBER)" [attr.title]="o.ORDER_NUMBER">
+                {{ o.ORDER_NUMBER }}
+              </span>
+              <span *ngIf="o.CAN_EDIT" (click)="edit()" class="order-edit-text">
+                <span nz-icon class="order-edit-icon" nzType="edit" nzTheme="outline"> &nbsp;</span> Edit</span>
+            </div>
+            <div class="subnam customer-name-container" nz-col nzSpan="24" *ngIf="o.CUSTOMER_TYPE != 'I'">
+              <svg *ngIf="o.CUSTOMER_TYPE == 'B'" height="17px" viewBox="0 0 48 48" width="17px" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path clip-rule="evenodd" fill-rule="evenodd" d="M6,47V20c0-2.209,1.791-4,4-4l0,0v-4c0-1.104,0.896-2,2-2h2V2c0-0.552,0.447-1,1-1  s1,0.448,1,1v8h2c1.104,0,2,0.896,2,2v4l0,0l0,0c2.209,0,4,1.791,4,4v8h7v-6h4v-3h6v3h1v25H6z M18,13c0-0.552-0.447-1-1-1h-4  c-0.553,0-1,0.448-1,1v3h6V13z M22,20c0-1.104-0.896-2-2-2H10c-1.104,0-2,0.896-2,2v25h14V20z M31,30h-7v15h7V30z M40,24h-7v21h7V24  z"/>
+              </svg>
+              <span class="truncate-text fs-11-imp" [attr.title]="o.COMPANY_NAME">{{ o.COMPANY_NAME }}</span>
+            </div>
+            <div class="subnam customer-name-container" nz-col nzSpan="24">
+              <span nz-icon nzType="user" nzTheme="outline" class="mr-3"></span>
+              <span class="truncate-text fs-11-imp" [attr.title]="o.CUSTOMER_NAME">{{ o.CUSTOMER_NAME }}</span>
+            </div>
+            <div nz-col nzSpan="24">
+              <div nz-row>
+                <div class="subnam subnamhover address-line fs-11-imp" nz-col nzSpan="23">
+                  <span nz-icon nzType="environment" nzTheme="outline" class="mr-3"></span>
+                  {{ o.ADDRESS_LINE_1 }}<span class="address-line" *ngIf="o.ADDRESS_LINE_2">, {{ o.ADDRESS_LINE_2 }}</span>
+                  , {{ o.COUNTRY_NAME }}, {{ o.STATE_NAME }}, {{ o.PINCODE }}
+                </div>
+              </div>
+            </div>
+            <div class="subnam contact-info-start" nz-col nzSpan="24" *ngIf="o.EMAIL">
+              <a class="email-link fs-11-imp" href="mailto:{{ o.EMAIL }}" target="_blank">
+                <span nz-icon nzType="mail" nzTheme="outline" class="contact-icon mr-3"></span>{{ o.EMAIL }}
+              </a>
+            </div>
+            <div class="subnam contact-info-start" nz-col nzSpan="24" *ngIf="o.MOBILE_NO">
+              <a class="mr-3 contact-link fs-11-imp" href="tel:+{{ o.MOBILE_NO }}" target="_blank">
+                <span nz-icon nzType="phone" nzTheme="outline" class="contact-icon mr-3"></span>{{ o.MOBILE_NO }}
+              </a>
+            </div>
+            <div class="subnam contact-info-start fs-11-imp" nz-col nzSpan="24" *ngIf="o.CLIENT_SOURCE_TICKET_NUMBER">
+              <span nz-icon nzType="tag" nzTheme="outline" class="mr-3"></span>
+              Client Source Ticket No.: {{ o.CLIENT_SOURCE_TICKET_NUMBER }}
+            </div>
+
+            <div class="subnam contact-info-start fs-11-imp od-spoc-block" nz-col nzSpan="24">
+              <div class="od-spoc-title od-ticket-title">
+                <span>Ticket Details</span>
+                <span *ngIf="o.CAN_EDIT" class="order-edit-text" (click)="edit()">
+                  <span nz-icon class="order-edit-icon" nzType="edit" nzTheme="outline"></span> Edit
+                </span>
+              </div>
+              <div class="od-spoc-meta">
+                <span nz-icon nzType="clock-circle" nzTheme="outline" class="mr-3"></span>
+                Ticket Type: {{ ticketTypeText() }}
+              </div>
+              <div class="od-spoc-meta">
+                <span nz-icon nzType="tool" nzTheme="outline" class="mr-3"></span>
+                Tech Level: {{ o.TECH_LEVEL_NAME || '-' }}
+              </div>
+            </div>
+
+            <div class="subnam contact-info-start fs-11-imp od-spoc-block" nz-col nzSpan="24" *ngIf="o.SPOCS.length > 0">
+              <div class="od-spoc-title">SPOC Details</div>
+              <div class="od-spoc-item" *ngFor="let spoc of o.SPOCS">
+                <div class="od-spoc-name">
+                  <span nz-icon nzType="user" nzTheme="outline" class="mr-3"></span>
+                  <span [attr.title]="spoc.FULL_NAME">{{ spoc.FULL_NAME }}</span>
+                  <nz-tag *ngIf="spoc.IS_PRIMARY === 1" nzColor="blue" class="od-spoc-primary">Primary</nz-tag>
+                </div>
+                <div class="od-spoc-meta" *ngIf="spoc.EMAIL_ID" [attr.title]="spoc.EMAIL_ID">
+                  <span nz-icon nzType="mail" nzTheme="outline" class="mr-3"></span>{{ spoc.EMAIL_ID }}
+                </div>
+                <div class="od-spoc-meta" *ngIf="spoc.MOBILE_NUMBER">
+                  <span nz-icon nzType="phone" nzTheme="outline" class="mr-3"></span>{{ spoc.MOBILE_NUMBER }}
+                </div>
+              </div>
+            </div>
+
+            <div class="subnam contact-info-start fs-11-imp od-spoc-block" nz-col nzSpan="24">
+              <div class="od-spoc-title">Technician Details</div>
+              <div class="od-spoc-item" *ngFor="let tech of o.TECHNICIANS">
+                <div class="od-spoc-name">
+                  <span nz-icon nzType="tool" nzTheme="outline" class="mr-3"></span>
+                  <span [attr.title]="tech.NAME">{{ tech.NAME }}</span>
+                  <nz-tag *ngIf="tech.IS_GUEST" nzColor="purple" class="od-spoc-primary">Guest</nz-tag>
+                </div>
+                <div class="od-spoc-meta" *ngIf="tech.MOBILE_NUMBER">
+                  <a class="contact-link fs-11-imp" href="tel:+{{ tech.MOBILE_NUMBER }}" target="_blank">
+                    <span nz-icon nzType="phone" nzTheme="outline" class="mr-3"></span>{{ tech.MOBILE_NUMBER }}
+                  </a>
+                </div>
+              </div>
+              <div class="od-tech-empty" *ngIf="o.TECHNICIANS.length == 0">No technician assigned yet</div>
+            </div>
+          </div>
+
+          <div nz-row class="backbbb mt-10">
+            <div class="contact-buttons-container">
+              <div>
+                <a href="tel:+{{ o.MOBILE_NO }}" target="_blank">
+                  <button nz-button nzType="primary" class="lin-grad-btn"><span nz-icon nzType="phone" nzTheme="fill"></span>Call</button>
+                </a>
+              </div>
+              <div>
+                <a href="https://wa.me/{{ o.MOBILE_NO }}" target="_blank" rel="noopener">
+                  <button nz-button nzType="primary" class="lin-grad-btn"><span nz-icon nzType="whats-app" nzTheme="outline"></span>WhatsApp</button>
+                </a>
+              </div>
+              <div>
+                <a href="mailto:{{ o.EMAIL }}" target="_blank">
+                  <button nz-button nzType="primary" class="lin-grad-btn"><span nz-icon nzType="mail" nzTheme="fill"></span>Email</button>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div nz-row class="backbbb mt-10 work-order-container">
+            <div nz-col nzSpan="24" class="mainnam">Work Order Details</div>
+            <div nz-col nzSpan="24" class="work-order-items-scroll">
+              <div *ngFor="let cartItem of o.LINES" class="cardstyle work-order-item-card">
+                <div nz-row>
+                  <div nz-col nzSpan="23" class="subname">
+                    <b>{{ cartItem.CATEGORY_NAME }}</b>
+                    <b *ngIf="cartItem.SERVICE_PARENT_NAME"> > {{ cartItem.SERVICE_PARENT_NAME }}</b>
+                    <b> > {{ cartItem.SUB_CATEGORY_NAME }}</b>
+                  </div>
+                </div>
+                <div nz-row>
+                  <div nz-col nzSpan="24" class="subname service-name-divider" [attr.title]="cartItem.SERVICE_NAME">{{ cartItem.SERVICE_NAME }}</div>
+                  <div nz-col nzSpan="24" class="preferred-datetime">Work Order Date and Time: {{ dt(o.ORDER_DATE_TIME) }}</div>
+                  <div nz-col nzSpan="24" class="preferred-datetime mb-1">Preferred Start Date and Time: {{ dt(cartItem.EXPECTED_DATE_TIME) }}</div>
+                </div>
+              </div>
+            </div>
+            <div nz-col nzSpan="24" class="subnam fs-12" *ngIf="o.DOCUMENT_NAME">
+              Attachment:
+              <nz-tag nzColor="#1677ff" (click)="viewAttachment()" nzTooltipTitle="View Attachment" nz-tooltip class="cursor-pointer fs-10-imp">
+                <span nz-icon nzType="eye" nzTheme="outline" class="fs-10-imp"></span>&nbsp;&nbsp;View Attachment</nz-tag>
+            </div>
+          </div>
+
+          <div class="footer sticky-footer">
+            <nz-tag class="status-tag-full-width" *ngIf="status == 'OP' && refundOk" nzColor="#ff9d19">Work Order Created</nz-tag>
+            <nz-tag class="status-tag-full-width" *ngIf="status == 'OA' && refundOk" nzColor="#00b778">Work Order Accepted</nz-tag>
+            <nz-tag class="status-tag-full-width" *ngIf="status == 'OR'" nzColor="#e50000">Work Order Rejected</nz-tag>
+            <nz-tag class="status-tag-full-width" *ngIf="status == 'OS'" nzColor="#0351ea">Work Order Scheduled</nz-tag>
+            <nz-tag class="status-tag-full-width" *ngIf="(status == 'OP' || status == 'OA') && o.REFUND_STATUS == 'P'" nzColor="#d10404">Cancel Requested</nz-tag>
+            <nz-tag class="status-tag-full-width" *ngIf="status == 'ON' && o.TECHNICIAN_STATUS !== 'CO'" nzColor="#0351ea">Work Order Ongoing</nz-tag>
+            <nz-tag class="status-tag-full-width" *ngIf="status == 'ON' && o.TECHNICIAN_STATUS == 'CO'" nzColor="#0082ff">Awaiting Service Desk Approval</nz-tag>
+            <nz-tag class="status-tag-full-width" *ngIf="status == 'OC' || status == 'CO'" nzColor="#028d00">Work Order Completed</nz-tag>
+            <nz-tag class="status-tag-full-width" *ngIf="status == 'C' || status == 'CA'" nzColor="#f70000">Work Order Cancelled</nz-tag>
+
+            <div class="order-actions" *ngIf="canCancel">
+              <div class="order-actions-label">ORDER ACTIONS</div>
+              <button nz-button nzBlock class="cancel-order-btn" (click)="openCancelWorkOrderModal()">
+                <span nz-icon nzType="stop" nzTheme="outline"></span>
+                Cancel Work Order
+              </button>
+              <div class="order-actions-hint">
+                A work order can only be cancelled before Ovation accepts it. Charges as per the SOW will be applicable.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Right column: tabs ── -->
+        <div class="gutter-row" nz-col nzSpan="17">
+          <div class="backbbb">
+            <nz-tabset nzCentered (nzSelectedIndexChange)="onTab($event)">
+              <nz-tab [nzTitle]="verificationTitle">
+                <ng-template #verificationTitle>
+                  Verification
+                  <span *ngIf="status == 'OP'" nz-icon class="color-orange" nzType="warning" nzTheme="fill"></span>
+                  <span *ngIf="status != 'OP'" nz-icon class="color-green" nzType="check-circle" nzTheme="fill"></span>
+                </ng-template>
+                <ng-template nz-tab>
+                  <div class="tab-content-container">
+                    <div *ngIf="status == 'OP' && o.REFUND_STATUS != 'P'" class="wo-verification-banner">
+                      <div class="wo-status-card wo-pending">
+                        <div class="wo-status-content">
+                          <div class="wo-status-title">ACTION REQUIRED</div>
+                          <div class="wo-status-message">Work Order Verification Is Pending</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div *ngIf="(status == 'OP' || status == 'OA') && o.REFUND_STATUS == 'P'" class="wo-verification-banner">
+                      <div class="wo-status-card wo-cancellation">
+                        <div class="wo-status-content">
+                          <div class="wo-status-title">VERIFICATION IN PROGRESS</div>
+                          <div class="wo-status-message">The cancellation request is under verification</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div *ngIf="!['OP', 'OR', 'C', 'CA', 'CO'].includes(status) && !isGuest && refundOk" class="wo-verification-banner">
+                      <div class="wo-status-card wo-accepted">
+                        <div class="wo-status-content">
+                          <div class="wo-status-title">WORK ORDER CONFIRMED</div>
+                          <div class="wo-status-message">Work Order Accepted Successfully</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div *ngIf="status == 'CO'" class="wo-verification-banner">
+                      <div class="wo-status-card wo-accepted">
+                        <div class="wo-status-content">
+                          <div class="wo-status-title">WORK ORDER COMPLETED</div>
+                          <div class="wo-status-message">Work Order Completed Successfully</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div *ngIf="status == 'OR'" class="wo-verification-banner">
+                      <div class="wo-status-card wo-rejected">
+                        <div class="wo-status-content">
+                          <div class="wo-status-title">WORK ORDER DECLINED</div>
+                          <div class="wo-status-message">Work Order Rejected Successfully</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div *ngIf="status == 'C' || status == 'CA'" class="wo-verification-banner">
+                      <div class="wo-status-card wo-cancelled">
+                        <div class="wo-status-content">
+                          <div class="wo-status-title">WORK ORDER CANCELLED</div>
+                          <div class="wo-status-message">Work Order Cancelled Successfully</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Guest technician (read-only for customers). -->
+                    <div nz-row nzGutter="24" *ngIf="showGuestTech">
+                      <div nz-col nzSpan="24" class="padten">
+                        <div class="cardstyle-guest-tech" nz-row>
+                          <div class="mainnam werdetal" nz-col nzSpan="24"><span class="fs-13">Guest Technician Details</span></div>
+                          <div nz-col nzSpan="24" class="truncate-text1 fs-12-imp subnam margintopten">
+                            <b class="fontimp">Name:</b> {{ o.GUEST_TECHNICIAN_NAME }}
+                          </div>
+                          <div nz-col nzSpan="12" *ngIf="o.GUEST_TECHNICIAN_CONTACT" class="truncate-text1 subnam fs-12-imp margintopfive">
+                            <b class="fontimp">Mobile No.:</b> {{ o.GUEST_TECHNICIAN_CONTACT }}
+                          </div>
+                          <div nz-col nzSpan="12" *ngIf="o.GUEST_TECHNICIAN_EMAIL" class="truncate-text1 subnam fs-12-imp margintopfive">
+                            <b class="fontimp">Email ID:</b> {{ o.GUEST_TECHNICIAN_EMAIL }}
+                          </div>
+                          <div nz-col nzSpan="24" *ngIf="o.GUEST_TECHNICIAN_OTHER_DETAILS" class="subnam margintopfive fs-12-imp">
+                            <b class="fontimp">Other Details:</b> {{ o.GUEST_TECHNICIAN_OTHER_DETAILS }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Work order (job) cards. -->
+                    <div nz-row nzGutter="16" *ngIf="showJobCards">
+                      <div nz-col nzSpan="4"></div>
+                      <div nz-col nzSpan="16">
+                        <div nz-row nzGutter="16">
+                          <div nz-col nzSpan="24" class="p-10" *ngFor="let data of o.LINES">
+                            <div class="cardstyle1 h-100" nz-row>
+                              <div class="mainnam text-align-start" nz-col nzSpan="24">
+                                <span *ngIf="data.JOB_CARD_NO" class="job-card-badge" [attr.title]="data.JOB_CARD_NO">{{ data.JOB_CARD_NO }}</span>
+                              </div>
+                              <div class="subnam job-customer-info" nz-col nzSpan="24">
+                                <span *ngIf="o.CUSTOMER_TYPE == 'I'" nz-icon nzType="user" nzTheme="outline"></span>
+                                <span class="truncate-text">{{ o.CUSTOMER_TYPE != 'I' ? o.COMPANY_NAME : o.CUSTOMER_NAME }}</span>
+                              </div>
+                              <div class="subnam fs-11-imp" nz-col nzSpan="23">
+                                <span class="fs-11-imp truncate-text" [attr.title]="o.SERVICE_ADDRESS">{{ o.SERVICE_ADDRESS }}</span>
+                              </div>
+                              <div class="subnam fs-11-imp mb-0" nz-col nzSpan="12">
+                                <span class="fs-11-imp truncate-text">Postal Code: {{ o.PINCODE }}</span>
+                              </div>
+                              <div class="subnam fs-11-imp text-start" nz-col nzSpan="24">
+                                <span class="fs-11-imp truncate-two-lines" [attr.title]="data.SERVICE_NAME"> Service: {{ data.SERVICE_NAME }}</span>
+                              </div>
+                              <div class="subnam text-align-start" nz-col nzSpan="12">
+                                <span class="fs-11-imp" *ngIf="data.SHEDULED_DATETIME">Scheduled Date: {{ dt(data.SHEDULED_DATETIME) }}</span>
+                              </div>
+                              <div class="subnam text-align-end" nz-col nzSpan="12">
+                                <span class="fs-11-imp" *ngIf="data.ESTIMATED_TIME_IN_MIN > 0">Estimated Time: {{ readable(data.ESTIMATED_TIME_IN_MIN) }}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div nz-col nzSpan="4"></div>
+                    </div>
+                  </div>
+                </ng-template>
+              </nz-tab>
+
+              <nz-tab nzTitle="Work Order Details" [nzDisabled]="detailsTabDisabled">
+                <ng-template nz-tab>
+                  <div class="tab-content-container">
+                    <div nz-row *ngIf="detailsText && completed">
+                      <div nz-col nzSpan="24" class="padten">
+                        <div class="cardstyle-guest-tech" nz-row>
+                          <div class="mainnam werdetal" nz-col nzSpan="24">
+                            <span class="fs-13">Details Added By Customer While Work Order Creation</span>
+                          </div>
+                          <div nz-col nzSpan="24" class="subnam margintopfive fs-12-imp details-text">{{ detailsText }}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div nz-row *ngIf="showCompletion">
+                      <div nz-col nzSpan="24" class="padten">
+                        <div class="cardstyle-guest-tech" nz-row>
+                          <div class="mainnam werdetal" nz-col nzSpan="24"><span class="fs-13">Work Order Completion Details</span></div>
+                          <div nz-col nzSpan="24" *ngIf="reportFilled" class="subnam margintopfive fs-12-imp">
+                            <b class="fontimp">{{ job?.SITE_VISIT_REPORT_TYPE === 'Dispatch' ? 'Dispatch Report:' : 'QHC Report:' }}</b>&nbsp;
+                            <nz-tag nzColor="processing" (click)="openReport()" class="view-report-tag">
+                              <i nz-icon nzType="eye" nzTheme="outline"></i>&nbsp;View</nz-tag>
+                          </div>
+                          <div nz-col nzSpan="24" *ngIf="job?.REMARK" class="subnam margintopfive fs-12-imp">
+                            <b class="fontimp">Work Order Completion Remark</b>
+                            <div class="remarks-container"><p class="remarks-text">{{ job?.REMARK }}</p></div>
+                          </div>
+                          <div nz-col nzSpan="24" *ngIf="o.PHOTOS.length > 0" class="subnam margintopfive fs-12-imp">
+                            <b class="fontimp">Work Order Completion Photos/Files</b>
+                            <div nz-row nzGutter="8">
+                              <div nz-col nzSpan="6" *ngFor="let p of o.PHOTOS" class="image-col">
+                                <div class="completion-photo-tile">
+                                  <a [href]="photoUrl(p)" target="_blank" rel="noopener">
+                                    <img *ngIf="isImage(p)" [src]="photoUrl(p)" width="100%" height="150" alt="Completion photo" />
+                                    <span *ngIf="!isImage(p)" class="completion-file-tile">
+                                      <span class="file-tile-icon-wrap"><span nz-icon nzType="file" nzTheme="outline"></span></span>
+                                      <span class="file-tile-ext">{{ fileLabel(p) }}</span>
+                                      <span class="file-chip-name">{{ p.PHOTOS_URL }}</span>
+                                    </span>
+                                  </a>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div nz-row *ngIf="job?.TASK_DESCRIPTION && job?.TASK_DESCRIPTION !== '-'">
+                      <div nz-col nzSpan="24" class="padten">
+                        <div class="cardstyle-guest-tech" nz-row>
+                          <div class="mainnam werdetal" nz-col nzSpan="24">
+                            <span class="fs-13">Additional Details Added While Work Order(Job) Creation</span>
+                          </div>
+                          <div nz-col nzSpan="24" class="subnam margintopfive fs-12-imp">
+                            <div class="remarks-container"><p class="remarks-text">{{ job?.TASK_DESCRIPTION }}</p></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div nz-row *ngIf="showEditor">
+                      <div nz-col nzSpan="24" class="p-10">
+                        <angular-editor [config]="editorConfig" [(ngModel)]="description" name="specialInstruction1"
+                          placeholder="Enter Work Order Details" class="w-100"></angular-editor>
+                        <span class="char-count-error-simple" *ngIf="description.length > 50000">{{ description.length }}/50000</span>
+                      </div>
+                      <div nz-col nzSpan="24" class="p-10 text-center" *ngIf="canUpdateDescription">
+                        <button nz-button class="mt-5 lin-grad-btn" nzType="primary" (click)="updateDescription()"
+                          [nzLoading]="savingDescription">Update Work Order Details</button>
+                      </div>
+                    </div>
+
+                    <nz-empty *ngIf="!showEditor && !detailsText && !showCompletion && !(job?.TASK_DESCRIPTION && job?.TASK_DESCRIPTION !== '-')"
+                      nzNotFoundContent="No work order details yet"></nz-empty>
+                  </div>
+                </ng-template>
+              </nz-tab>
+
+              <nz-tab nzTitle="Parts Request" [nzDisabled]="true"></nz-tab>
+
+              <nz-tab nzTitle="Action/Activity Log">
+                <ng-template nz-tab>
+                  <div nz-row>
+                    <div nz-col nzSpan="3"></div>
+                    <div nz-col nzSpan="18">
+                      <nz-spin [nzSpinning]="logsLoading">
+                        <div class="timeline-container padding-top-0">
+                          <div *ngFor="let g of timeline">
+                            <h3 class="group-date">{{ g.date }}</h3>
+                            <nz-timeline>
+                              <nz-timeline-item *ngFor="let event of g.events">
+                                <div class="event-details">
+                                  <div class="event-title"><span>{{ event.title }}</span></div>
+                                  <div class="event-meta">
+                                    <span class="time">{{ event.time }}</span>
+                                    <span class="user">By {{ event.user }}</span>
+                                  </div>
+                                </div>
+                              </nz-timeline-item>
+                            </nz-timeline>
+                          </div>
+                          <div *ngIf="!logsLoading && timeline.length == 0" class="data-not-found-container">
+                            <nz-empty nzNotFoundContent="Data Not Found"></nz-empty>
+                          </div>
+                        </div>
+                      </nz-spin>
+                    </div>
+                    <div nz-col nzSpan="3"></div>
+                  </div>
+                </ng-template>
+              </nz-tab>
+
+              <nz-tab nzTitle="Customer Ratings for Technicians" [nzDisabled]="true"></nz-tab>
+              <nz-tab nzTitle="Technician Ratings for Customers" [nzDisabled]="true"></nz-tab>
+              <nz-tab nzTitle="View Customer-Technician Chat" [nzDisabled]="true"></nz-tab>
+              <nz-tab nzTitle="Service Location">
+                <ng-template nz-tab>
+                  <nz-spin [nzSpinning]="mapState === 'loading' && hasLocation">
+                    <div *ngIf="hasLocation && mapState !== 'error'" class="map" id="service-map"></div>
+                    <div *ngIf="!hasLocation" class="no-location-data">
+                      <p class="emptyDataTex">No Location Data Available</p>
+                    </div>
+                    <div *ngIf="mapState === 'error'" class="no-location-data">
+                      <p class="emptyDataTex">The map could not be loaded.</p>
+                      <a class="map-link" target="_blank" rel="noopener" [href]="mapUrl">Open in Google Maps</a>
+                    </div>
+                  </nz-spin>
+                </ng-template>
+              </nz-tab>
+              <nz-tab nzTitle="Technician Travel History" [nzDisabled]="true"></nz-tab>
+            </nz-tabset>
+          </div>
+        </div>
+      </div>
+    </nz-spin>
+  </div>
+</div>
+
+<!-- ── Cancel Work Order modal ── -->
+<nz-modal [(nzVisible)]="cancelModalVisible" nzTitle="Cancel Work Order" (nzOnCancel)="cancelModalVisible = false"
+  [nzFooter]="null" [nzMaskClosable]="false" [nzWidth]="480" nzClassName="cancel-order-modal">
+  <ng-container *nzModalContent>
+    <div class="cancel-modal-wo">
+      <span class="cancel-modal-wo-label">Work Order No.</span>
+      <span class="cancel-modal-wo-value">{{ order?.ORDER_NUMBER }}</span>
+    </div>
+    <div class="cancel-modal-field">
+      <label class="cancel-modal-label required">Cancellation Reason</label>
+      <nz-select class="cancel-modal-control" nzPlaceHolder="Select Reason" [(ngModel)]="selectedCancelReason"
+        name="cancelReason" nzShowSearch nzAllowClear>
+        <nz-option *ngFor="let r of cancelReasonList" [nzValue]="r.REASON" [nzLabel]="r.REASON"></nz-option>
+      </nz-select>
+    </div>
+    <div class="cancel-modal-field">
+      <label class="cancel-modal-label">Remark</label>
+      <textarea nz-input class="cancel-modal-control" [(ngModel)]="cancelRemark" name="cancelRemark" maxlength="500"
+        [nzAutosize]="{ minRows: 3, maxRows: 5 }" placeholder="Enter Remark (optional)"></textarea>
+      <div class="cancel-modal-count" *ngIf="cancelRemark">{{ cancelRemark.length }}/500</div>
+    </div>
+    <div class="cancel-modal-note">Charges as per the SOW will be applicable.</div>
+    <div class="cancel-modal-footer">
+      <button nz-button nzType="default" (click)="cancelModalVisible = false" [disabled]="isCancelling">Close</button>
+      <button nz-button nzDanger nzType="primary" class="cancel-modal-submit" (click)="submitCancelWorkOrder()"
+        [nzLoading]="isCancelling">Cancel Work Order</button>
+    </div>
+  </ng-container>
+</nz-modal>
+
+<!-- The customer cannot cancel a work order Ovation has already accepted. -->
+<nz-modal [(nzVisible)]="alreadyAcceptedModalVisible" nzTitle="Cancel Work Order" (nzOnCancel)="alreadyAcceptedModalVisible = false"
+  [nzFooter]="null" [nzMaskClosable]="false" [nzWidth]="480" nzClassName="cancel-order-modal">
+  <ng-container *nzModalContent>
+    <div class="cancel-modal-wo">
+      <span class="cancel-modal-wo-label">Work Order No.</span>
+      <span class="cancel-modal-wo-value">{{ order?.ORDER_NUMBER }}</span>
+    </div>
+    <div class="cancel-modal-note">
+      This Work Order has already been accepted by Ovation. To cancel it, please reach out to the Ovation Service Desk
+      by phone or email.
+    </div>
+    <div class="cancel-modal-footer">
+      <button nz-button nzType="primary" (click)="alreadyAcceptedModalVisible = false">Ok</button>
+    </div>
+  </ng-container>
+</nz-modal>

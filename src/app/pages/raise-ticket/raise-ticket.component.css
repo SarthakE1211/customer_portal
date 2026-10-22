@@ -1,0 +1,1698 @@
+/* The admin panel's Raise a ticket drawer (ordercreatedrawer), shown as a full page. The rules
+   below the frame are the drawer's own, copied so both forms look the same. */
+.screen { height: 100vh; display: flex; flex-direction: column; background: #fff; overflow: hidden; }
+.bar { flex-shrink: 0; height: 55px; display: flex; align-items: center; gap: 12px; padding: 0 24px; border-bottom: 1px solid #f0f0f0; }
+.bar h1 { margin: 0; font-size: 16px; font-weight: 500; line-height: 22px; color: rgba(0, 0, 0, .85); }
+.close { width: 22px; height: 22px; display: grid; place-items: center; padding: 0; border: none; background: transparent; color: rgba(0, 0, 0, .45); }
+.close:hover { color: rgba(0, 0, 0, .75); }
+.drawer-body { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; padding: 6px 10px 8px; }
+.d-flex { display: flex; }
+.paddtin10 { padding-right: 10px; }
+
+/* ── Admin ordercreatedrawer.component.css, copied whole ── */
+nz-form-item {
+  display: inline-block;
+  margin-bottom: 5px;
+  width: -webkit-fill-available;
+  padding: 0px 10px;
+}
+
+.drop-width {
+  width: 100% !important;
+}
+
+.zeroper {
+  width: 0% !important;
+}
+
+/* ── Section containers ── */
+.my-box {
+  background: #ffffff;
+  border: 1px solid #ffe0de;
+  border-radius: 12px;
+  padding: 8px 4px 6px;
+  margin-bottom: 6px;
+  box-shadow: 0 2px 8px rgba(162, 47, 40, 0.05);
+}
+
+/* ── Edit-mode order info card ── */
+.backbbb {
+  background: #fff9f9;
+  border: 1px solid #ffe0de;
+  border-radius: 10px;
+  padding: 10px 8px;
+  margin-bottom: 4px;
+}
+
+.payment-summary {
+  float: right;
+  direction: rtl;
+  text-align: right;
+}
+
+.truncate-three-lines {
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  max-height: calc(1.5em * 3);
+  cursor: pointer;
+  line-height: 1.5em;
+}
+
+.custom-popover {
+  max-width: 600px;
+  max-height: 400px;
+  overflow-y: auto;
+  white-space: normal !important;
+  word-wrap: break-word !important;
+}
+
+.custom-popover img {
+  max-width: 100% !important;
+  max-height: 200px !important;
+  height: auto !important;
+  display: block;
+  margin: auto;
+  border-radius: 5px;
+}
+
+.truncate-two-lines {
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  max-height: calc(1.5em * 3);
+  cursor: pointer;
+  line-height: 1.5em;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+}
+
+thead tr {
+  background-color: #f4f4f4;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 8px;
+  border: 1px solid #ddd;
+}
+
+th {
+  font-weight: bold;
+  text-align: center;
+}
+
+td {
+  text-align: center;
+}
+
+tbody tr:nth-child(odd) {
+  background-color: #f9f9f9;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #ffffff;
+}
+
+tbody tr:hover {
+  background-color: #e8f5ff;
+}
+
+button[nz-button] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+button[nz-button] span {
+  margin-right: 3px;
+}
+
+button[nz-button][nzDanger] {
+  color: #f5222d;
+}
+
+button[nz-button][nzType="link"] {
+  padding: 0;
+}
+
+.cardstyle {
+  background: #ffffff;
+  padding: 9px;
+  box-shadow: 0 2px 10px rgba(162, 47, 40, 0.07);
+  border: 1px solid #ffe0de;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.cardstyle:hover {
+  box-shadow: 0 6px 18px rgba(162, 47, 40, 0.12);
+  border-color: #f5a09a;
+}
+
+.emptyDataTex {
+  color: grey;
+  font-weight: 500;
+}
+
+::-webkit-scrollbar {
+  height: 5px;
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px rgb(233, 233, 233);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-track:hover {
+  box-shadow: inset 0 0 5px rgb(169, 168, 168);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(131, 131, 131);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  box-shadow: inset 0 0 5px rgb(8, 8, 8);
+}
+
+:host::ng-deep .ant-time-picker-now {
+  display: none !important;
+}
+
+.fontsize {
+  font-size: 12px !important;
+}
+
+.fontsize>:host::ng-deep label {
+  font-size: 12px !important;
+}
+
+:host::ng-deep .ant-tree .ant-tree-treenode-disabled .ant-tree-node-content-wrapper {
+  font-weight: 500;
+  color: brown;
+  cursor: not-allowed;
+}
+
+:host::ng-deep.ant-tree .ant-tree-node-content-wrapper.ant-tree-node-selected {
+  background-color: #ffe0de !important;
+}
+
+:host::ng-deep .ant-tree-indent-unit {
+  display: inline-block;
+  width: 8px;
+}
+
+.subname {
+  color: #4c4c4ceb;
+  font-size: 12px !important;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.subname-ser-nm {
+  color: #4c4c4ceb;
+  font-size: 12px !important;
+  font-weight: 500;
+}
+
+.service-image {
+  flex-shrink: 0;
+  text-align: center
+}
+
+:host::ng-deep .ant-tree .ant-tree-node-content-wrapper {
+  padding: 0px !important;
+  width: 85%;
+  line-height: 15px;
+}
+
+:host::ng-deep.ant-tree .ant-tree-treenode {
+  padding: 0px !important;
+}
+
+.selected-node {
+  background: #ffe0de;
+  border-radius: 4px;
+}
+
+.image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 350px;
+  overflow: auto;
+}
+
+.image-container img {
+  transition: transform 0.3s ease-in-out;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.controls {
+  display: flex;
+  justify-content: end;
+}
+
+.controls button {
+  margin-left: 5px;
+  cursor: pointer;
+}
+
+.controls button:hover {
+  background-color: #0056b3;
+}
+
+:host::ng-deep.ant-card-body {
+  padding: 8px !important;
+}
+
+.sticky-footer {
+  position: sticky;
+  bottom: 0;
+  background: linear-gradient(180deg, #fff9f9 0%, #ffffff 100%);
+  padding: 10px 8px;
+  text-align: center;
+  border-top: 2px solid #ffe0de;
+  z-index: 99;
+  margin-top: 10px;
+  box-shadow: 0 -4px 12px rgba(162, 47, 40, 0.06);
+}
+
+.paddtin10 {
+  padding-right: 10px
+}
+
+.tataldiv {
+  margin-top: 5px;
+  padding-top: 3px;
+  padding-right: 0px;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: right;
+}
+
+.textright {
+  margin-top: 0px !important;
+  text-align: right !important;
+}
+
+.cardapan {
+  font-size: 11px !important;
+  font-weight: 500;
+  margin-left: 2px;
+  margin-top: 2px;
+}
+
+.servicecat {
+  text-align: center;
+  padding-top: 15vh
+}
+
+.diccust {
+  margin-top: 6px;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #ffe0de;
+  box-shadow: 0 2px 8px rgba(162, 47, 40, 0.04);
+  padding: 2px 0;
+}
+
+.marginpadd0 {
+  margin-top: 5px;
+  padding-right: 0px
+}
+
+.pridet {
+  font-weight: 700;
+  font-size: 13px;
+  color: #a22f28;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: 0.1px;
+}
+
+.overpad {
+  padding-bottom: 0px !important;
+  overflow: hidden;
+}
+
+.widtmh-100 {
+  width: 100%;
+  margin-top: 0px;
+}
+
+.padding-0 {
+  padding-right: 0px;
+}
+
+.padding-lft {
+  padding-left: 0px;
+  padding-right: 0px;
+}
+
+.priname {
+  font-size: 12px;
+  color: #2d3748;
+  font-weight: 500;
+}
+
+.priname1 {
+  font-size: 13px;
+  color: #2d3748;
+  font-weight: 500;
+}
+
+.marginfont-12 {
+  font-size: 12px;
+  color: #718096
+}
+
+.margin-26 {
+  margin-top: 26px
+}
+
+.display-nonn {
+  display: none !important;
+}
+
+.dispaly-fless {
+  display: flex;
+  justify-content: space-between
+}
+
+.preline-13 {
+  font-size: 13px;
+  color: #2d3748;
+  font-weight: 500;
+  white-space: pre-line;
+}
+
+.preline-14 {
+  font-size: 14px;
+  color: #2d3748;
+  font-weight: 500;
+  white-space: pre-line;
+}
+
+.fotpre-50 {
+  margin-top: 50px;
+  white-space: pre-line;
+  text-align: center;
+  font-size: 13px;
+}
+
+.border-left {
+  border-left: 1px solid #ffe0de;
+}
+
+.servicenamee {
+  margin: 6px 0px 4px 8px;
+  font-weight: 600;
+  font-size: 12px;
+  color: #6366f1;
+  font-family: 'Poppins', sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hegi-45 {
+  height: 45vh;
+  overflow-y: scroll
+}
+
+.marginbotomm-0 {
+  margin-bottom: 0px
+}
+
+.amrgin-to5 {
+  margin-top: 5px;
+}
+
+.padingleftt-00 {
+  padding-left: 0px;
+}
+
+.displayyfelaxx {
+  display: flex;
+}
+
+.marginright-5 {
+  margin-right: 5px;
+}
+
+.padiingg-44 {
+  padding-right: 4px;
+}
+
+.fontweigt-14 {
+  font-size: 14px;
+  font-weight: 500
+}
+
+.marginright-55 {
+  margin-right: 5px
+}
+
+.custtype {
+  font-size: 14px;
+  color: #2d3748;
+  font-weight: 500;
+}
+
+.iconmargin-5 {
+  color: #3182ce;
+  margin-right: 5px
+}
+
+.fontsiz-23col {
+  font-size: 12px;
+  color: #4a5568
+}
+
+.marginrigt-5coll {
+  color: #2b6cb0;
+  margin-right: 5px
+}
+
+.cor71 {
+  color: #718096;
+  margin-right: 5px
+}
+
+.margintop-26t {
+  margin-top: 26px
+}
+
+.terroty-name {
+  color: darkred;
+  text-align: center;
+  padding: 4px 5px;
+  margin-top: 5px;
+  background-color: antiquewhite;
+  font-weight: 500;
+  width: 100%;
+  font-size: 14px;
+}
+
+.fontsize-11f {
+  font-size: 11px !important
+}
+
+.margin-020 {
+  margin: 2px 0px 0px 0px !important
+}
+
+.backroun-00 {
+  position: absolute;
+  top: -4px;
+  background: linear-gradient(135deg, #7c3aed 0%, #d96b65 100%) !important;
+  border-color: transparent !important;
+  box-shadow: 0 3px 8px rgba(162, 47, 40, 0.28);
+}
+
+.backcolor-255 {
+  background: #ffffff;
+  border-radius: 8px;
+  margin: 4px 8px;
+  padding: 5px 7px;
+  border: 1px solid #ffe0de;
+  transition: border-color 0.18s ease;
+}
+
+.backcolor-255:hover {
+  border-color: #f5a09a;
+}
+
+.paddingleft-5l {
+  padding-left: 5px
+}
+
+.fontweigh50001 {
+  font-size: 13px !important;
+  font-weight: 500;
+}
+
+.textalignn-right {
+  text-align: right
+}
+
+.colorfffffo {
+  font-size: 10px !important;
+  font-weight: 500;
+  color: #ffffff;
+  background: #d50087;
+  padding: 1px 8px 2px;
+  border-radius: 10px;
+}
+
+.color-gray4 {
+  font-size: 11px !important;
+  font-weight: 400;
+  color: grey;
+}
+
+.colre7 {
+  font-size: 11px;
+  padding-bottom: 3px;
+  margin-bottom: 3px;
+  font-weight: 400;
+  border-bottom: 1px solid #e7e7e7;
+}
+
+.alinitrmscnetrr {
+  display: flex;
+  align-items: center
+}
+
+.width-100fo12 {
+  width: 100%;
+  font-size: 12px !important
+}
+
+.quantity-5 {
+  margin-top: 5px;
+  padding-top: 3px;
+  padding-left: 0px;
+  font-size: 11px;
+  font-weight: 500;
+  color: grey;
+}
+
+.icon-38c {
+  color: #38a169;
+  margin-right: 5px
+}
+
+.colo-805 {
+  color: #805ad5;
+  margin-right: 5px
+}
+
+.colorecc {
+  color: #ecc94b;
+  margin-right: 5px
+}
+
+.color2dfon {
+  font-size: 14px;
+  text-align: left;
+  color: #2d3748;
+  font-weight: 500;
+}
+
+.icon-31c {
+  color: #3182ce
+}
+
+.textstarteai {
+  text-align: start
+}
+
+.bacgrond-f0f5 {
+  color: #1d39c4 !important;
+  background: #f0f5ff !important;
+  border-color: #adc6ff !important;
+  padding: 5px;
+}
+
+.textenddda {
+  text-align: end
+}
+
+.back-1dad {
+  color: #1d39c4 !important;
+  background: #f0f5ff !important;
+  border-color: #adc6ff !important;
+  padding: 5px;
+  font-size: 12px !important;
+}
+
+.nowraphi {
+  font-size: 12px !important;
+  margin-top: 4px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.overfloawhiid-5 {
+  margin-right: 5px;
+  overflow: hidden
+}
+
+.iconsapnri {
+  margin-right: 3px
+}
+
+.padding-5nowrp {
+  font-size: 12px !important;
+  margin-top: 4px;
+  overflow: hidden;
+  white-space: nowrap;
+  padding-right: 5px;
+}
+
+.textalignright12 {
+  font-size: 12px !important;
+  margin-top: 4px;
+  text-align: right;
+}
+
+.textstartt5 {
+  font-size: 12px !important;
+  text-align: start;
+  padding-right: 5px;
+}
+
+.fontw-600 {
+  margin-bottom: 0px;
+  font-weight: 600
+}
+
+.fontsizeimp {
+  font-size: 12px !important
+}
+
+.dispaypadding-512 {
+  font-size: 12px !important;
+  text-align: start;
+  padding-right: 5px;
+  display: none;
+}
+
+.pr-5 {
+  padding-right: 5px !important;
+}
+
+.bottom-0600 {
+  margin-bottom: 0px;
+  font-weight: 600
+}
+
+.overfoloehidden {
+  overflow: hidden
+}
+
+.darkedterrname {
+  color: darkred;
+  text-align: center;
+  padding: 4px 5px;
+  margin-top: 5px;
+  background-color: antiquewhite;
+  font-weight: 500;
+  width: 100%;
+  font-size: 14px;
+}
+
+.ellipsehidden {
+  border-radius: 0px;
+  font-size: 12px !important;
+  padding: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.colorrdred {
+  color: red;
+}
+
+.parentback1010 {
+  background: #fff9f9;
+  border-radius: 10px;
+  margin: 5px 10px 10px;
+  padding: 8px;
+  border: 1px solid #dde5ff;
+}
+
+.nameimportat {
+  font-size: 13px !important;
+  font-weight: 500
+}
+
+.childcount {
+  font-size: 11px !important;
+  font-weight: 600;
+  text-align: right;
+}
+
+.back-whitee {
+  text-align: center;
+  padding: 10px;
+  background-color: white;
+}
+
+.dashedcdcd {
+  background: #ffffff;
+  border-radius: 8px;
+  margin: 8px 0;
+  padding: 7px;
+  border: 1px solid #ffe0de;
+  transition: border-color 0.18s ease;
+}
+
+.dashedcdcd:hover {
+  border-color: #f5a09a;
+}
+
+.fontsie-12w {
+  width: 100%;
+  font-size: 12px !important;
+}
+
+.b2bprice {
+  margin-top: 5px;
+  padding-top: 3px;
+  padding-left: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  color: grey;
+}
+
+.baselinee {
+  display: flex;
+  position: relative;
+  align-items: baseline;
+  justify-content: center;
+}
+
+.top-4 {
+  position: absolute;
+  top: -4px;
+  background: linear-gradient(135deg, #a22f28 0%, #d96b65 100%) !important;
+  border-color: transparent !important;
+  box-shadow: 0 3px 8px rgba(162, 47, 40, 0.28);
+}
+
+.justfy-11 {
+  text-align: justify;
+  font-size: 11px !important;
+}
+
+.padtin-top1222 {
+  padding-top: 12px;
+}
+
+.paddingwhirspace {
+  font-size: 12px;
+  padding: 2px 0px;
+  height: 35px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.widthhh1000 {
+  width: 100%;
+}
+
+.redspecail {
+  color: red;
+  font-size: 10px
+}
+
+.height-440 {
+  height: 400px
+}
+
+.margin-30p {
+  margin-top: 30px
+}
+
+.margintop-10p {
+  margin-top: 10px;
+}
+
+.order-detail {
+  border-top: 1px solid #ffe0de;
+  font-size: 13px;
+  padding: 5px 0px;
+  margin-top: 10px;
+  font-weight: 600;
+  padding-top: 14px;
+}
+
+.fontsize-16imp {
+  font-size: 16px !important
+}
+
+.express-12 {
+  font-size: 11px;
+  padding-bottom: 3px;
+  margin-bottom: 3px;
+  font-weight: 400;
+  border-bottom: 1px solid #e7e7e7;
+}
+
+.border-8pxmar {
+  border-radius: 10px !important;
+  margin: 4px 8px 4px 2px;
+  border: 1px solid #ffe0de !important;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease !important;
+}
+
+.border-8pxmar:hover {
+  box-shadow: 0 4px 14px rgba(162, 47, 40, 0.10) !important;
+  border-color: #f5a09a !important;
+}
+
+.centerjustfy {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.margin00 {
+  margin: 0 0 5px 0;
+  font-weight: 500;
+  font-size: 14px
+}
+
+.primarytext {
+  margin-left: 8px;
+}
+
+.color-666f {
+  margin: 2px 0;
+  color: #666;
+  font-size: 12px;
+}
+
+.cartitemmf {
+  font-size: 11px;
+  padding: 6px 10px 4px
+}
+
+.categoryc {
+  font-weight: 500;
+  color: #858585;
+  font-size: 10px !important;
+}
+
+.photospan {
+  cursor: pointer;
+  padding: 3px 4px;
+  border: none;
+  background: white;
+  margin-top: -5px;
+  margin-right: 2px;
+  font-size: 12px !important;
+}
+
+.graybrand {
+  font-size: 10px !important;
+  font-weight: 400;
+  color: grey;
+}
+
+.qtygray {
+  font-size: 8px;
+  font-weight: 400;
+  color: grey
+}
+
+.taxtright {
+  text-align: right;
+  text-align: right;
+  padding-top: 3px;
+}
+
+.exclusivetax {
+  font-weight: 600 !important
+}
+
+.expressdiv {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 5px;
+}
+
+.expresssapn {
+  background-color: rgb(245 45 162);
+  font-size: 10px !important;
+  font-weight: 500;
+  padding: 0px 5px;
+  color: white;
+  border-radius: 15px;
+}
+
+.grossamt {
+  margin-top: -5px;
+  font-size: 11px
+}
+
+.expressdilver {
+  font-size: 9px !important
+}
+
+.totaldiv {
+  border-bottom: 1px solid #ffe0de;
+  padding: 1px 0;
+  font-size: 12px;
+}
+
+.totalweight {
+  font-weight: 600;
+  text-align: right
+}
+
+.totalamtdive {
+  font-weight: bold;
+  text-align: right
+}
+
+.servexpress {
+  border-bottom: 1px solid #ffe0de;
+}
+
+.labelservice {
+  margin-bottom: 5px !important;
+}
+
+.attcdive {
+  font-size: 13px;
+  padding: 5px 0px;
+  margin-top: 5px;
+  font-weight: 600;
+}
+
+.attchementdiv1 {
+  font-size: 13px;
+  padding: 0px 0px;
+  font-weight: 600;
+  margin-top: 0px;
+}
+
+.uploadatt {
+  height: 28px;
+  padding: 0px 10px;
+  font-size: 11px;
+  width: 50%;
+  border-radius: 4px !important;
+  border-color: #f5a09a !important;
+  color: #a22f28 !important;
+  font-family: 'Poppins', sans-serif !important;
+  transition: background 0.18s ease, border-color 0.18s ease !important;
+}
+
+.uploadatt:hover {
+  background: #fff9f9 !important;
+  border-color: #a22f28 !important;
+}
+
+.uploadingspan {
+  margin-left: 10px;
+}
+
+.iconloadd {
+  color: #1890ff;
+  font-size: 16px;
+}
+
+.docname {
+  font-size: 13px;
+  margin-top: 5px;
+}
+
+.docsapn {
+  color: #4c4cff;
+  margin-right: 5px;
+}
+
+.viewdoc {
+  color: #1890ff;
+  cursor: pointer;
+}
+
+.quntiitydiv {
+  margin-top: 2px
+}
+
+.maxqty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quntybtn {
+  padding: 2px 8px !important;
+  display: block;
+  height: 20px;
+  min-width: 21px;
+  border-radius: 50%;
+}
+
+.quntybtn1 {
+  padding: 2px 5px !important;
+  display: block;
+  height: 20px;
+  min-width: 21px;
+  border-radius: 50%;
+}
+
+.exclusiveqty {
+  text-align: left;
+  padding-top: 3px;
+  padding-left: 3px;
+  font-size: 11px;
+  font-weight: 500;
+  color: grey;
+}
+
+.samllfont {
+  font-weight: 500 !important;
+}
+
+.cartitemqnt {
+  border-radius: 20px;
+  text-align: center;
+}
+
+.bg-color-ser {
+  background-color: #a22f280a !important;
+}
+
+.bg-color-ser-sub {
+  background-color: #fff9f9 !important;
+}
+
+.width-80 {
+  width: 88% !important;
+}
+
+.width-20 {
+  width: 12% !important;
+}
+
+/* ── Create / Update Work Order button ── */
+.create-order-btn {
+  background: linear-gradient(135deg, #a22f28 0%, #d96b65 100%) !important;
+  border: none !important;
+  border-radius: 4px !important;
+  font-family: 'Poppins', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  height: 38px !important;
+  padding: 0 28px !important;
+  box-shadow: 0 4px 14px rgba(162, 47, 40, 0.28) !important;
+  transition: box-shadow 0.2s ease, transform 0.15s ease !important;
+}
+
+.create-order-btn:hover {
+  box-shadow: 0 6px 20px rgba(162, 47, 40, 0.40) !important;
+  transform: translateY(-1px) !important;
+}
+
+.lin-grad-btn {
+  background-image: linear-gradient(135deg, #a22f28 0%, #d96b65 100%) !important;
+  border-radius: 4px !important;
+}
+
+.grad-back {
+  background-image: linear-gradient(135deg, #a22f28 0%, #d96b65 100%) !important;
+}
+
+.lin-grad-btn-joint {
+  background-image: linear-gradient(135deg, #a22f28 0%, #d96b65 100%) !important;
+  border-top-right-radius: 3px !important;
+  border-bottom-right-radius: 3px !important;
+}
+
+:host ::ng-deep .ant-btn-primary {
+  background: linear-gradient(135deg, #a22f28 0%, #d96b65 100%) !important;
+  border-color: transparent !important;
+  font-family: 'Poppins', sans-serif !important;
+  transition: box-shadow 0.2s ease !important;
+}
+
+:host ::ng-deep .ant-btn-primary:hover {
+  box-shadow: 0 4px 14px rgba(162, 47, 40, 0.35) !important;
+}
+/* ── Card section heading row ── */
+.sectionhead {
+  padding: 0 10px 4px;
+}
+
+/* ── SPOC Details block inside the customer card ── */
+.spocblock {
+  border-top: 1px solid #ffe0de;
+  margin-top: 4px;
+  padding: 6px 10px 0;
+}
+
+/* ── Type of Visit / Type of Work pick lists ── */
+.pickcol {
+  padding: 0 6px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+.picklabel {
+  font-size: 13px;
+  height: 26px;
+  padding: 0;
+  /* ant-form-item-label defaults to text-align:right, which parks the label at
+     the far edge of the column instead of above its list. */
+  text-align: left;
+  display: block;
+  /* .pickcol is a flex column, so without this the label is the first thing the
+     browser shrinks when the card is short and the list clips the text. */
+  flex: 0 0 auto;
+}
+
+/* ant-form-item-label is overflow:hidden and its label keeps ant's 32px
+   line-height, so a 26px box cuts the text in half. */
+:host ::ng-deep .picklabel.ant-form-item-label > label {
+  height: 26px;
+  line-height: 26px;
+}
+
+.picklist {
+  border: 1px solid #e3e3e8;
+  border-radius: 6px;
+  background: #fff;
+  flex: 1 1 auto;
+  min-height: 120px;
+  overflow-y: auto;
+  padding: 2px 0;
+  margin-bottom: 6px;
+}
+
+.picklistgroup {
+  display: block;
+  width: 100%;
+}
+
+:host ::ng-deep .pickitem.ant-radio-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 0;
+  padding: 6px 10px;
+  font-size: 13px;
+  border-bottom: 1px solid #f4f4f6;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+:host ::ng-deep .pickitem.ant-radio-wrapper:hover {
+  background: #fff5f5;
+}
+
+:host ::ng-deep .pickitem.ant-radio-wrapper-checked {
+  background: #fdecec;
+  color: #a22f28;
+  font-weight: 500;
+}
+
+:host ::ng-deep .pickitem.ant-radio-wrapper > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nodatapick {
+  text-align: center;
+  padding-top: 60px;
+  font-size: 12px;
+}
+
+/* ── Service list, the one scrolling region in the right column ──
+   It owns the scroll now that .colscroll is a fixed frame; when the column
+   itself scrolled, a nested scroll area here pushed Selected Service Details
+   out of view. min-height:0 is what lets it actually shrink inside the flex
+   parent instead of pushing the card taller. */
+.servicepicklist {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ── Work order details / attachment / selected service ── */
+.detailwrap {
+  padding: 4px 8px 6px;
+}
+
+.attachrow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 6px 8px;
+}
+
+.attachinfo {
+  font-size: 12px;
+}
+
+/* Pinned under the service list and always shown in full. No max-height: the
+   cart holds at most one item, so capping it only clipped that one card. The
+   service list above is what gives up space instead. */
+.selectedwrap {
+  flex: 0 0 auto;
+  border-top: 1px solid #ffe0de;
+  margin: 6px 8px 2px;
+  padding-top: 6px;
+}
+
+.selectedwrap .cardstyle {
+  margin: 4px 2px 2px;
+}
+
+/* ── Fit the whole form to the drawer body ──
+   Measure against the actual container, not the viewport: 100vh math ignores the
+   drawer header and body padding, so the shell ended up taller than its parent and
+   overflow:hidden clipped the bottom of the right-hand column. Chaining height:100%
+   from :host down through the form and nz-spin makes the shell exactly as tall as
+   the drawer body. If any link in that chain loses its definite height the whole
+   thing degrades to natural flow and the drawer scrolls - it never clips. */
+/* The drawer body is a flex column (see its nzBodyStyle), so take the leftover
+   height as a flex child. min-height:0 is required or the inner scroll regions
+   push this taller than the body instead of shrinking. */
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+}
+
+:host>form {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+}
+
+/* Scoped to the outermost spinner only - the dropdown and service-list spinners
+   inside this template must keep their natural height.
+   NOTE: nz-spin sets .ant-spin-nested-loading as a HOST binding, so that class is
+   on the <nz-spin> element itself (same node as .formspin) - .ant-spin-container
+   is its direct child. Targeting a descendant .ant-spin-nested-loading matches
+   nothing and silently breaks the height chain. */
+.formspin {
+  display: block;
+  height: 100%;
+}
+
+:host ::ng-deep .formspin>.ant-spin-container {
+  height: 100%;
+}
+
+.orderform-shell {
+  height: 100%;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+.formcol {
+  max-height: 100%;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Left: the Type of Work card absorbs the leftover height so its two lists end
+   flush with the bottom of the panel instead of being cut mid-row. */
+.formcol-left {
+  overflow-y: auto;
+}
+
+.workcard {
+  flex: 1 1 auto;
+  min-height: 230px;
+  display: flex;
+  flex-direction: column;
+}
+
+.pickrow {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* ── Type of Visit ──
+   Top level of the category tree, rendered as radio pills - the selection is
+   single-value (see onVisitChange). */
+.visitrow {
+  flex: 0 0 auto;
+  padding: 0 6px 6px 6px;
+}
+
+.visitgroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* BRD FR-03: Tech Level sits to the right of the Type of Visit choices. */
+.visitcol {
+  min-width: 0;
+}
+
+.techlevelcol {
+  padding-left: 12px;
+}
+
+/* BRD FR-01: Ticket Type row, below the customer fields (or the order card when editing). */
+.tickettyperow {
+  margin-top: 6px;
+}
+
+:host ::ng-deep .visititem.ant-radio-wrapper {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 6px 12px;
+  border: 1px solid #e3e3e8;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 13px;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  max-width: 100%;
+  user-select: none;
+}
+
+:host ::ng-deep .visititem.ant-radio-wrapper:hover {
+  background: #fff5f5;
+}
+
+:host ::ng-deep .visititem.ant-radio-wrapper-checked {
+  background: #fdecec;
+  border-color: #d9363e;
+  color: #a22f28;
+  font-weight: 500;
+}
+
+:host ::ng-deep .visititem.ant-radio-wrapper > span:last-child {
+  padding-right: 0;
+  overflow: hidden;
+}
+
+.visittext {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nodatavisit {
+  font-size: 12px;
+  padding: 8px 0;
+  margin-bottom: 0;
+}
+
+/* Right: everything scrolls except the action button, which is pinned as a real
+   footer rather than position:sticky - sticky was still being clipped by the
+   bottom edge of the drawer body. */
+.formcol-right {
+  overflow: hidden;
+}
+
+/* The right column is a frame first, scroll area second: Priority / Details /
+   Attachment keep their natural height, the service card absorbs whatever is
+   left, and only the service list inside it scrolls. That keeps Selected
+   Service Details and the Create button on screen. On a tall screen everything
+   fits and no scrollbar appears; overflow-y:auto (not hidden) is what stops a
+   short screen from silently clipping the bottom cards instead of scrolling. */
+.colscroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+}
+
+.colscroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.colscroll::-webkit-scrollbar-thumb {
+  background: #e6c9c7;
+  border-radius: 3px;
+}
+
+.colscroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.colscroll > .diccust {
+  flex: 0 0 auto;
+}
+
+/* No leading gap - the first card should line up with the left column's. */
+.colscroll > .diccust:first-child {
+  margin-top: 0;
+}
+
+.colscroll > .diccust.servicecard {
+  flex: 1 1 auto;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.servicecardbody {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.colfooter {
+  flex: 0 0 auto;
+  text-align: center;
+  padding: 8px 8px 4px;
+  background: linear-gradient(180deg, #fff9f9 0%, #ffffff 100%);
+  border-top: 2px solid #ffe0de;
+  box-shadow: 0 -4px 12px rgba(162, 47, 40, 0.06);
+  border-radius: 0 0 12px 12px;
+}
+
+.formcol::-webkit-scrollbar {
+  width: 6px;
+}
+
+.formcol::-webkit-scrollbar-thumb {
+  background: #e6c9c7;
+  border-radius: 3px;
+}
+
+/* ── Short screens (laptops ~768px tall and below) ──
+   There is no leftover height for the service card to absorb, so squeezing it to
+   its 120px min only produced a cramped nested scroller while Selected Service
+   Details and the footer got pushed out of view. Give the card its natural
+   height instead and let the column itself scroll - the list keeps a bounded
+   max-height so a long activity list still cannot run away with the page. */
+@media (max-height: 820px) {
+  .colscroll > .diccust.servicecard {
+    flex: 0 0 auto;
+    overflow: visible;
+  }
+
+  .servicecardbody {
+    overflow: visible;
+  }
+
+  .servicepicklist {
+    flex: 0 0 auto;
+    max-height: 220px;
+  }
+
+  /* The left column's Type of Work / Service Catalogue lists are height-driven
+     the same way; without this they collapse toward their 230px minimum. */
+  .workcard {
+    min-height: 260px;
+  }
+}
+
+/* Service thumbnail - scale to its column instead of a fixed 70px so it never
+   overflows the narrower right-hand panel. */
+.serviceimg {
+  width: 100%;
+  max-width: 50px;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+}
+
+/* ── SPOC row: select + New SPOC + selected SPOC card, all on one line ── */
+/* center, not flex-end: the card is taller than the select, so bottom-aligning it
+   pushed it up past the "Select SPOCs" label and it read as floating loose. */
+.spocrow {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-bottom: 6px;
+}
+
+.spocselect {
+  flex: 0 1 240px;
+  min-width: 180px;
+  padding: 0 !important;
+  width: auto !important;
+  margin-bottom: 0 !important;
+}
+
+.newspocbtn {
+  flex: none;
+  margin-bottom: 1px;
+}
+
+.spoccards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex: 1 1 240px;
+  min-width: 0;
+}
+
+.spoccard {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  border: 1px solid #e3e3e8;
+  border-radius: 6px;
+  padding: 5px 10px;
+  background: #fff;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.spoccardbody {
+  min-width: 0;
+}
+
+.spocname {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f1f24;
+  line-height: 1.4;
+}
+
+.spocnametxt {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spocmeta {
+  font-size: 12px;
+  color: #55555d;
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Upload Attachment button ── */
+.attachrow .uploadatt {
+  flex: 1 1 200px;
+  width: auto;
+  height: 32px;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* ── Trim the details editor ── */
+:host ::ng-deep .detailwrap .angular-editor-textarea {
+  margin-top: 4px !important;
+}
+
+/* ── Portal additions ── */
+.colfooter {
+  flex: 0 0 auto;
+  text-align: center;
+  padding: 8px 8px 4px;
+  background: linear-gradient(180deg, #fff9f9 0%, #ffffff 100%);
+  border-top: 2px solid #ffe0de;
+  box-shadow: 0 -4px 12px rgba(162, 47, 40, 0.06);
+  border-radius: 0 0 12px 12px;
+}
+.create-order-btn {
+  background: linear-gradient(135deg, #a22f28 0%, #d96b65 100%) !important;
+  border: none !important;
+  border-radius: 4px !important;
+  font-family: 'Poppins', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  height: 38px !important;
+  padding: 0 28px !important;
+  box-shadow: 0 4px 14px rgba(162, 47, 40, 0.28) !important;
+  transition: box-shadow 0.2s ease, transform 0.15s ease !important;
+}
+.create-order-btn:hover {
+  box-shadow: 0 6px 20px rgba(162, 47, 40, 0.40) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Work order details: the panel uses a toolbar-less rich text box of the same size. */
+.details {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  min-height: 3.4rem;
+  height: 58px;
+  max-height: 5rem;
+  resize: vertical;
+}
+
+/* Service card */
+.service-item { display: flex; align-items: center; gap: 10px; margin: 4px 8px 8px; padding: 7px; background: #fff; border: 1px solid #ffe0de; border-radius: 8px; }
+.service-text { min-width: 0; }
+.serviceimg { width: 100%; max-width: 50px; height: auto; aspect-ratio: 1 / 1; object-fit: contain; }
+.fontweigh50001 { font-size: 13px !important; font-weight: 500; }
+.quantity-5 { margin-top: 5px; padding-top: 3px; font-size: 11px; font-weight: 500; color: grey; }
+.noservice { margin: auto 0; padding: 24px 0; text-align: center; }
+
+/* New SPOC drawer */
+.char-counter { margin: 2px 0 0; font-size: 11px; font-weight: 400; color: #8c8c8c; text-align: right; }
+.mobile { display: flex; gap: 6px; }
+.mobile nz-select { width: 120px; flex-shrink: 0; }
+.spochint { margin: 0 0 16px; font-size: 12px; color: #718096; }
+.spocactions { display: flex; justify-content: flex-end; gap: 8px; }
+
+@media (max-width: 1000px) {
+  .screen { height: auto; min-height: 100vh; overflow: visible; }
+  .drawer-body { overflow: visible; }
+  .orderform-shell { height: auto; overflow: visible; }
+  .formcol { max-width: 100% !important; flex: 0 0 100% !important; max-height: none; }
+  .paddtin10 { padding-right: 0; }
+}
+.drawer-body > .formspin { flex: 1 1 auto; min-height: 0; }
+
+.bar h1 .ordno { font-weight: 400; color: rgba(0, 0, 0, .55); }
+
+/* Admin globals used by the edit order card. */
+.mainnam { color: #111827; font-size: 13px !important; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.subnam { color: #4b5563; font-size: 12px !important; font-weight: 500; font-family: 'Poppins', sans-serif; }

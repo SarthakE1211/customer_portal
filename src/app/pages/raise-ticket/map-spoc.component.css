@@ -1,0 +1,114 @@
+/* The admin panel's address-spoc.component.css, plus the admin globals it relies on
+   (.my-box, .footer and the table header style). */
+.my-box {
+  border: 1px solid #e0e7ff;
+  border-radius: 6px;
+  padding: 4px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  background-color: #fafbff;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+  border-top: 1px solid rgb(232, 232, 232);
+  padding: 10px 16px;
+  text-align: right;
+  left: 0px;
+  background: #fff;
+  z-index: 10;
+}
+
+th {
+  text-align: center !important;
+  font-weight: bold !important;
+}
+
+nz-form-item {
+    display: inline-block;
+    margin-bottom: 5px;
+    width: -webkit-fill-available;
+    padding: 0px 6px;
+}
+
+.drop-width {
+    width: 100% !important;
+}
+
+.ant-form-item-control-input-content {
+    display: flex;
+    align-items: center;
+}
+
+.ant-btn-sm {
+    height: 28px;
+    padding: 5px 7px;
+}
+
+.char-counter {
+    color: red;
+    font-size: 10px;
+}
+
+.mobile-input-control {
+    display: flex;
+    gap: 8px;
+}
+
+.action-button-container {
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 24px;
+}
+
+.map-spoc-icon {
+    color: #a22f28;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.edit-contact-tag {
+    cursor: pointer;
+    font-size: 10px !important;
+}
+
+.cancel-button {
+    margin-right: 8px;
+}
+
+.font-10 {
+    font-size: 10px !important;
+}
+
+.ant-select.ant-select-in-form-item {
+    width: 40%;
+}
+
+.mobile .ant-input {
+    width: 60%;
+}
+
+/* ── Brand design system ── */
+:host ::ng-deep .ant-form-item-label>label {
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: #374151;
+}
+
+:host ::ng-deep .ant-btn-primary {
+    background: linear-gradient(135deg, #a22f28 0%, #d96b65 100%) !important;
+    border-color: transparent !important;
+    font-family: 'Poppins', sans-serif !important;
+    transition: box-shadow 0.2s ease !important;
+}
+
+:host ::ng-deep .ant-btn-primary:hover {
+    box-shadow: 0 4px 14px rgba(162, 47, 40, 0.35) !important;
+}
+
+nz-divider {
+    border-color: #ffe0de !important;
+}

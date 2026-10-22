@@ -1,0 +1,110 @@
+<main class="page">
+  <div class="row wrap head">
+    <a class="icon-btn back" routerLink="/reports" aria-label="Back to reports">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#B0102A" stroke-width="2.2" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+    </a>
+    <div class="grow">
+      <div class="muted crumb">Reports</div>
+      <h1 class="h1 title">Customer work order report</h1>
+    </div>
+    <button class="btn btn-primary" type="button" (click)="exportCsv()" [disabled]="loading || !list.length">Export CSV</button>
+  </div>
+
+  <div class="loading" *ngIf="loading">Loading work orders…</div>
+  <div class="card empty" *ngIf="error"><b>Could not load work orders</b><span>{{ error }}</span></div>
+
+  <ng-container *ngIf="!loading && !error">
+    <section class="card filters">
+      <div class="grid6">
+        <label class="field"><span>Created from</span><input class="input" type="date" [(ngModel)]="from" (ngModelChange)="apply()"></label>
+        <label class="field"><span>Created to</span><input class="input" type="date" [(ngModel)]="to" (ngModelChange)="apply()"></label>
+        <label class="field"><span>State</span>
+          <select class="select" [(ngModel)]="state" (ngModelChange)="apply()">
+            <option value="">All states</option><option *ngFor="let s of stateOpts" [value]="s">{{ s }}</option>
+          </select>
+        </label>
+        <label class="field"><span>Type of visit</span>
+          <select class="select" [(ngModel)]="visitType" (ngModelChange)="apply()">
+            <option value="">All visit types</option><option *ngFor="let v of VISIT_TYPES" [value]="v">{{ v }}</option>
+          </select>
+        </label>
+        <label class="field"><span>Technician</span>
+          <select class="select" [(ngModel)]="tech" (ngModelChange)="apply()">
+            <option value="">All technicians</option><option value="__assigned">Assigned</option><option value="__none">Not assigned</option>
+            <option *ngFor="let t of techOpts" [value]="t">{{ t }}</option>
+          </select>
+        </label>
+        <div class="field"><span>Priority</span>
+          <div class="pr-row">
+            <button type="button" *ngFor="let p of PRIORITIES" (click)="togglePriority(p)"
+              [style.background]="prs.includes(p) ? PRC[p].bg : '#F7F8FA'" [style.borderColor]="prs.includes(p) ? PRC[p].border : '#E3E6EA'"
+              [style.color]="prs.includes(p) ? PRC[p].color : '#79808C'">{{ p }}</button>
+          </div>
+        </div>
+      </div>
+      <div class="row wrap stage-row">
+        <span class="eyebrow">Stage</span>
+        <button class="chip" type="button" *ngFor="let s of STAGES" [class.on]="stages.includes(s.k)" (click)="toggleStage(s.k)"><span class="dot" [style.background]="s.dot"></span>{{ s.label }}</button>
+        <span class="spacer"></span>
+        <span class="muted match">{{ nf(list.length) }} work orders match</span>
+        <button class="btn-link" type="button" *ngIf="anyFilter" (click)="clear()">Clear all</button>
+      </div>
+    </section>
+
+    <section class="kpis">
+      <div class="card kpi"><span class="eyebrow">Work orders</span><b>{{ nf(list.length) }}</b><small>in selected range</small></div>
+      <div class="card kpi"><span class="eyebrow">Completed</span><b>{{ nf(counts['completed'] || 0) }}</b><small>{{ pct(counts['completed'] || 0, list.length) }} of total</small></div>
+      <div class="card kpi"><span class="eyebrow">Open</span><b>{{ nf(openN) }}</b><small>created → ongoing</small></div>
+      <div class="card kpi"><span class="eyebrow">Not assigned</span><b>{{ nf(unassigned) }}</b><small>awaiting technician</small></div>
+      <div class="card kpi"><span class="eyebrow">Cancelled / rejected</span><b>{{ nf(closedN) }}</b><small>{{ pct(closedN, list.length) }} of total</small></div>
+    </section>
+
+    <section class="card dist">
+      <div class="row"><h2 class="h2 grow">Stage distribution</h2><span class="muted small-note">Click a stage to filter</span></div>
+      <div class="stack">
+        <span *ngFor="let s of STAGES" [style.width.%]="barWidth(s.k)" [style.background]="s.dot" [title]="s.label" (click)="toggleStage(s.k)"></span>
+      </div>
+      <div class="row wrap legend">
+        <button type="button" *ngFor="let s of STAGES" (click)="toggleStage(s.k)">
+          <i [style.background]="s.dot"></i>{{ s.label }} <b>{{ nf(counts[s.k] || 0) }}</b> <span class="muted">{{ pct(counts[s.k] || 0, list.length) }}</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="table-wrap">
+        <table class="table wide">
+          <thead><tr>
+            <th>Work order</th>
+            <th class="sortable" [class.sorted]="sortKey === 'created'" (click)="sortBy('created')">Created{{ arrow('created') }}</th>
+            <th>Customer</th><th>City / state</th><th>Type of visit</th><th>Service</th><th>Technician</th>
+            <th class="sortable" [class.sorted]="sortKey === 'visit'" (click)="sortBy('visit')">Visit{{ arrow('visit') }}</th>
+            <th>Priority</th><th>Stage</th>
+          </tr></thead>
+          <tbody>
+            <tr *ngFor="let t of pageRows">
+              <td class="nowrap"><span class="id-tag">{{ t.id }}</span></td>
+              <td class="nowrap"><span class="strong">{{ fmtDate(t.created) }}</span><span class="small">{{ fmtTime(t.created) }}</span></td>
+              <td class="strong">{{ t.customer }}</td>
+              <td class="nowrap"><span class="strong">{{ t.city }}</span><span class="small">{{ t.state }}</span></td>
+              <td class="nowrap">{{ t.visitType }}</td>
+              <td>{{ t.service }}</td>
+              <td class="nowrap" [class.muted]="!t.hasTechnician">{{ t.technician }}</td>
+              <td class="nowrap"><span class="strong">{{ fmtDate(t.visit) }}</span><span class="small">{{ fmtTime(t.visit) }}</span></td>
+              <td><span class="tag" [style.background]="PRC[t.pr].bg" [style.borderColor]="PRC[t.pr].border" [style.color]="PRC[t.pr].color" [title]="t.priorityName">{{ t.pr }}</span></td>
+              <td><span class="stage-pill" [style.background]="stageOf(t.stage).dot" [style.color]="t.stage === 'accepted' ? '#16181D' : '#fff'">{{ stageOf(t.stage).label }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="empty" *ngIf="!list.length"><b>No work orders match</b><span>Widen the date range or clear filters.</span></div>
+      <div class="card-foot">
+        <span class="muted">{{ pageLabel }}</span>
+        <div class="row">
+          <button class="btn btn-sm" type="button" [disabled]="page <= 1" (click)="goPage(page - 1)">Prev</button>
+          <button class="btn btn-sm" type="button" [disabled]="page >= pages" (click)="goPage(page + 1)">Next</button>
+        </div>
+      </div>
+    </section>
+  </ng-container>
+</main>
