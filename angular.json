@@ -15,33 +15,75 @@
             "outputPath": "dist/customer-portal",
             "index": "src/index.html",
             "main": "src/main.ts",
-            "polyfills": ["zone.js"],
+            "polyfills": [
+              "zone.js"
+            ],
             "tsConfig": "tsconfig.app.json",
-            "assets": ["src/assets", "src/web.config"],
-            "styles": ["node_modules/ng-zorro-antd/ng-zorro-antd.min.css", "node_modules/font-awesome/css/font-awesome.min.css", "src/styles.css"],
-            "scripts": []
+            "assets": [
+              "src/assets",
+              "src/web.config"
+            ],
+            "styles": [
+              "node_modules/ng-zorro-antd/ng-zorro-antd.min.css",
+              "node_modules/font-awesome/css/font-awesome.min.css",
+              "src/styles.css"
+            ],
+            "scripts": [],
+            "allowedCommonJsDependencies": [
+              "canvg",
+              "core-js",
+              "raf",
+              "rgbcolor",
+              "html2canvas",
+              "dompurify",
+              "jszip",
+              "pptxgenjs",
+          "jspdf-autotable"
+            ]
           },
           "configurations": {
             "production": {
               "budgets": [
-                { "type": "initial", "maximumWarning": "2mb", "maximumError": "3mb" },
-                { "type": "anyComponentStyle", "maximumWarning": "48kb", "maximumError": "64kb" }
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "3mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "48kb",
+                  "maximumError": "64kb"
+                }
               ],
               "outputHashing": "all"
             },
             "preprod": {
               "fileReplacements": [
-                { "replace": "src/environments/environment.ts", "with": "src/environments/environment.preprod.ts" }
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.preprod.ts"
+                }
               ],
               "budgets": [
-                { "type": "initial", "maximumWarning": "2mb", "maximumError": "3mb" },
-                { "type": "anyComponentStyle", "maximumWarning": "48kb", "maximumError": "64kb" }
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "3mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "48kb",
+                  "maximumError": "64kb"
+                }
               ],
               "outputHashing": "all"
             },
             "development": {
               "fileReplacements": [
-                { "replace": "src/environments/environment.ts", "with": "src/environments/environment.development.ts" }
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.development.ts"
+                }
               ],
               "buildOptimizer": false,
               "optimization": false,
@@ -55,15 +97,23 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
-          "options": { "port": 4701 },
+          "options": {
+            "port": 4701
+          },
           "configurations": {
-            "production": { "browserTarget": "customer-portal:build:production" },
-            "development": { "browserTarget": "customer-portal:build:development" }
+            "production": {
+              "browserTarget": "customer-portal:build:production"
+            },
+            "development": {
+              "browserTarget": "customer-portal:build:development"
+            }
           },
           "defaultConfiguration": "development"
         }
       }
     }
   },
-  "cli": { "analytics": false }
+  "cli": {
+    "analytics": false
+  }
 }

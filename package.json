@@ -22,7 +22,10 @@
     "@azure/msal-browser": "^3.30.0",
     "@kolkov/angular-editor": "^3.0.0-beta.0",
     "font-awesome": "^4.7.0",
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.8.2",
     "ng-zorro-antd": "^15.0.3",
+    "pptxgenjs": "^3.12.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.12.0"

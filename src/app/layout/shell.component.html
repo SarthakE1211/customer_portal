@@ -1,42 +1,29 @@
+<!-- Header: logo and version, navigation, search, profile. -->
 <header class="top">
-  <div class="accent"></div>
-  <div class="inner">
-    <a routerLink="/dashboard" class="brand" aria-label="Vantage home">
-      <img src="assets/Vantage_Logo.png" alt="Vantage">
-      <span class="tag-portal">Customer portal</span>
-    </a>
-    <span class="divider hide-sm"></span>
-    <nav class="nav">
-      <a routerLink="/dashboard" routerLinkActive="on">Dashboard</a>
-      <a routerLink="/work-orders" routerLinkActive="on">Work orders</a>
-      <a routerLink="/reports" routerLinkActive="on">Reports</a>
-    </nav>
+  <a routerLink="/dashboard" class="brand" aria-label="Vantage home">
+    <img src="assets/Vantage_Logo.png" alt="Vantage">
+    <span class="ver">V{{ version }}</span>
+  </a>
+  <span class="divider hide-sm"></span>
+  <nav class="nav">
+    <a routerLink="/dashboard" routerLinkActive="on">Dashboard</a>
+    <a routerLink="/work-orders" routerLinkActive="on">Work orders</a>
+    <a routerLink="/reports" routerLinkActive="on">Reports</a>
+  </nav>
 
-    <div class="right">
-      <label class="picker hide-sm" *ngIf="data.isStaff">
-        <span class="sr">Customer</span>
-        <select class="select" [ngModel]="selectedCustomer ?? ''" (ngModelChange)="pickCustomer($event)">
-          <option value="">All my customers</option>
-          <option *ngFor="let c of customers$ | async" [value]="c.ID">{{ c.NAME }}</option>
-        </select>
-      </label>
-      <form class="search hide-sm" (ngSubmit)="runSearch()" role="search">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#79808C" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
-        <input type="search" name="q" [(ngModel)]="search" placeholder="Search tickets, cities…" aria-label="Search work orders">
-      </form>
-      <button class="customise hide-sm" type="button" *ngIf="onDashboard" (click)="data.customise$.next()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>
-        Customise
-      </button>
-      <button class="profile" type="button" (click)="drawerOpen = true" [class.open]="drawerOpen" aria-label="Open profile">
-        <span class="avatar">{{ initials }}</span>
-        <span class="who hide-sm">
-          <b>{{ session.session?.name || session.session?.email }}</b>
-          <small>Customer Side User</small>
-        </span>
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#79808C" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
-      </button>
-    </div>
+  <div class="right">
+    <form class="search hide-sm" (ngSubmit)="runSearch()" role="search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#79808C" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+      <input type="search" name="q" [(ngModel)]="search" placeholder="Search tickets, cities…" aria-label="Search work orders">
+    </form>
+    <button class="profile" type="button" (click)="openProfile()" [class.open]="drawerOpen" aria-label="Open profile">
+      <span class="avatar">{{ initials }}</span>
+      <span class="who hide-sm">
+        <b>{{ session.session?.name || session.session?.email }}</b>
+        <small>{{ (customerName$ | async) || 'Customer Side User' }}</small>
+      </span>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#79808C" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
   </div>
 </header>
 

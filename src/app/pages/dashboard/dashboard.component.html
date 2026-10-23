@@ -1,369 +1,363 @@
-<main class="page">
-  <div class="head">
-    <div>
-      <div class="row kicker">
-        <span class="pill">Dispatch reporting</span>
-        <span class="muted">Self-serve · no request needed</span>
+<main class="wrap">
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <label class="search">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="search" [(ngModel)]="F.q" (ngModelChange)="render()" placeholder="Search by ticket number, city or state…" aria-label="Search tickets">
+    </label>
+    <button class="btn" type="button" (click)="customizeOpen = true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>Customise
+    </button>
+    <button class="btn" type="button" (click)="saveOpen = true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v5h7V3M8 21v-7h8v7"/></svg>Save report
+    </button>
+    <button class="btn" type="button" (click)="schedule()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Schedule
+    </button>
+    <a class="btn primary" routerLink="/raise-ticket">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Raise a ticket
+    </a>
+    <div class="exp">
+      <button class="btn primary" type="button" aria-haspopup="dialog" [attr.aria-expanded]="expOpen" (click)="expOpen = !expOpen" [disabled]="loading || !!error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Export
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <div class="expmenu" role="dialog" aria-label="Export reports" *ngIf="expOpen">
+        <div class="exphead"><b>Export reports</b><span>Uses the filters you have set</span></div>
+        <div class="expbody">
+          <label class="expall"><input type="checkbox" [checked]="expAll" (change)="toggleExpAll($any($event.target).checked)"> All reports together</label>
+          <ng-container *ngFor="let g of EXPORT_GROUPS">
+            <div class="expgrp">{{ g[0] }}</div>
+            <label class="sub" *ngFor="let r of g[1]"><input type="checkbox" [checked]="expSel.has(r[0])" (change)="toggleExp(r[0])"> {{ r[1] }}</label>
+          </ng-container>
+        </div>
+        <div class="expfmt"><span class="lbl">Detail</span>
+          <div class="seg">
+            <button type="button" [attr.aria-pressed]="expDet === 'summary'" (click)="expDet = 'summary'">Summary</button>
+            <button type="button" [attr.aria-pressed]="expDet === 'full'" (click)="expDet = 'full'">Full detail</button>
+          </div>
+          <span class="dethint">{{ expDet === 'summary' ? 'Top 10 states and cities, 20 latest tickets' : 'Every state, city and ticket in the selection' }}</span>
+        </div>
+        <div class="expfmt"><span class="lbl">Format</span>
+          <div class="seg">
+            <button type="button" [attr.aria-pressed]="expFmt === 'pdf'" (click)="expFmt = 'pdf'">PDF</button>
+            <button type="button" [attr.aria-pressed]="expFmt === 'pptx'" (click)="expFmt = 'pptx'">PowerPoint</button>
+            <button type="button" [attr.aria-pressed]="expFmt === 'csv'" (click)="expFmt = 'csv'">CSV</button>
+          </div>
+        </div>
+        <div class="expfoot"><span>{{ expCount }}</span>
+          <button class="btn primary" type="button" (click)="runExport()" [disabled]="!expSel.size || exporting">{{ exporting ? 'Preparing…' : 'Download' }}</button>
+        </div>
       </div>
-      <h1 class="h1">{{ customerName || 'Your' }} — work orders</h1>
-      <p class="lead" *ngIf="!loading">{{ headline }}</p>
-    </div>
-    <div class="row wrap">
-      <button class="btn" type="button" (click)="saveOpen = true" [disabled]="loading">Save view</button>
-      <button class="btn" type="button" (click)="exportOpen = true" [disabled]="loading || !rows.length">Export CSV</button>
-      <a class="btn btn-primary" routerLink="/raise-ticket">+ Raise a ticket</a>
     </div>
   </div>
 
-  <div class="loading" *ngIf="loading">Loading your work orders…</div>
-  <div class="card empty" *ngIf="error"><b>Could not load work orders</b><span>{{ error }}</span></div>
+  <!-- Saved reports -->
+  <div class="saved" *ngIf="saved.length">
+    <span class="lbl">Saved</span>
+    <button type="button" class="savedchip" *ngFor="let s of saved" (click)="applySaved(s)">{{ s.name }}
+      <span class="x-sm" role="button" aria-label="Remove saved report" (click)="removeSaved(s, $event)">×</span></button>
+  </div>
+
+  <!-- Filters -->
+  <section class="panel filters" aria-label="Filters">
+    <div class="f"><label for="period">Period</label>
+      <select id="period" class="sel period" [(ngModel)]="F.period" (ngModelChange)="render()">
+        <option *ngFor="let o of periodOptions" [value]="o.v">{{ o.l }}</option>
+        <optgroup label="Single month">
+          <option *ngFor="let m of months" [value]="m">{{ monthLabel(m) }}</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="f"><label for="region">Region</label>
+      <select id="region" class="sel" [(ngModel)]="F.region" (ngModelChange)="render()">
+        <option value="">All regions</option>
+        <option *ngFor="let r of regions" [value]="r">{{ r }}</option>
+      </select>
+    </div>
+    <div class="f"><label for="state">State</label>
+      <select id="state" class="sel" [(ngModel)]="F.state" (ngModelChange)="render()">
+        <option value="">All states</option>
+        <option *ngFor="let s of states" [value]="s.name">{{ s.name }}</option>
+      </select>
+    </div>
+    <div class="f"><label for="city">City contains</label><input id="city" class="txt" [(ngModel)]="F.city" (ngModelChange)="render()" placeholder="e.g. Columbus"></div>
+    <div class="f"><span class="lbl">Priority</span>
+      <div class="chips"><button type="button" class="chip" *ngFor="let p of PRIO; let i = index" [attr.aria-pressed]="F.prio.includes(i)" (click)="togglePrio(i)">{{ p.k }}</button></div>
+    </div>
+    <div class="foot"><span class="count"><b>{{ nf(rows.length) }}</b> tickets match</span><button type="button" class="link" (click)="reset()">Reset filters</button></div>
+  </section>
+
+  <div class="panel empty" *ngIf="loading">Loading your work orders…</div>
+  <div class="panel empty" *ngIf="error"><b>Could not load work orders</b><br>{{ error }}</div>
 
   <ng-container *ngIf="!loading && !error">
-    <div class="row wrap saved" *ngIf="saved.length">
-      <span class="eyebrow">Saved</span>
-      <button class="chip" type="button" *ngFor="let v of saved" (click)="applyView(v)">
-        {{ v.name }} <span class="count">{{ v.meta }}</span>
-        <span class="x" (click)="removeView(v, $event)" title="Remove" aria-label="Remove saved view">×</span>
-      </button>
-    </div>
-
-    <!-- Filters -->
-    <section class="card filters" aria-label="Filters">
-      <div class="row wrap">
-        <span class="eyebrow">Period</span>
-        <div class="row wrap months">
-          <button type="button" class="mchip" *ngFor="let k of allMonths" [class.on]="f.months.includes(k)" (click)="toggleMonth(k)">{{ monthLabel(k) }}</button>
-        </div>
-        <button type="button" class="dashed" (click)="set('months', allMonths.slice())">All 12 months</button>
-        <span class="spacer"></span>
-        <span class="muted strong-sm">{{ nf(rows.length) }} work orders match</span>
-      </div>
-      <div class="rule"></div>
-      <div class="grid5">
-        <label class="field"><span>Region</span>
-          <select class="select" [ngModel]="f.region" (ngModelChange)="set('region', $event)">
-            <option value="">All regions</option>
-            <option *ngFor="let o of regionOpts" [value]="o">{{ o }}</option>
-          </select>
-        </label>
-        <label class="field"><span>State</span>
-          <select class="select" [ngModel]="f.state" (ngModelChange)="set('state', $event)">
-            <option value="">All states</option>
-            <option *ngFor="let o of stateOpts" [value]="o.v">{{ o.t }}</option>
-          </select>
-        </label>
-        <label class="field"><span>City contains</span>
-          <input class="input" type="text" [ngModel]="f.city" (ngModelChange)="set('city', $event)" placeholder="e.g. Columbus">
-        </label>
-        <div class="field"><span>Priority</span>
-          <div class="pr-row">
-            <button type="button" *ngFor="let p of PRIORITIES" (click)="togglePriority(p)"
-              [style.background]="f.pr.includes(p) ? PRC[p].bg : '#F7F8FA'"
-              [style.borderColor]="f.pr.includes(p) ? PRC[p].border : '#E3E6EA'"
-              [style.color]="f.pr.includes(p) ? PRC[p].color : '#79808C'">{{ p }}</button>
-          </div>
-        </div>
-        <div class="field"><span>SLA</span>
-          <div class="seg full">
-            <button type="button" *ngFor="let s of ['All', 'Met', 'Breached']" [class.on]="f.sla === s" (click)="set('sla', $any(s))">{{ s }}</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid5 more" *ngIf="moreOpen">
-        <label class="field"><span>Type of visit</span>
-          <select class="select" [ngModel]="f.visitType" (ngModelChange)="set('visitType', $event)">
-            <option value="">All visit types</option>
-            <option *ngFor="let o of VISIT_TYPES" [value]="o">{{ o }}</option>
-          </select>
-        </label>
-        <label class="field"><span>Service</span>
-          <select class="select" [ngModel]="f.service" (ngModelChange)="set('service', $event)">
-            <option value="">All services</option>
-            <option *ngFor="let o of serviceOpts" [value]="o">{{ o }}</option>
-          </select>
-        </label>
-        <label class="field"><span>Technician</span>
-          <select class="select" [ngModel]="f.tech" (ngModelChange)="set('tech', $event)">
-            <option value="">All technicians</option>
-            <option *ngFor="let o of techOpts" [value]="o">{{ o }}</option>
-          </select>
-        </label>
-        <label class="field"><span>Ticket source</span>
-          <select class="select" [ngModel]="f.source" (ngModelChange)="set('source', $event)">
-            <option value="">All sources</option>
-            <option *ngFor="let o of sourceOpts" [value]="o">{{ o }}</option>
-          </select>
-        </label>
-        <div class="field"><span>Ageing ≤ {{ f.ageMax >= ageCap ? 'any' : f.ageMax + ' days' }}</span>
-          <div class="row age">
-            <input type="range" min="1" [max]="ageCap" step="1" [ngModel]="f.ageMax >= ageCap ? ageCap : f.ageMax" (ngModelChange)="set('ageMax', +$event >= ageCap ? 9999 : +$event)" aria-label="Maximum ageing in days">
-          </div>
-        </div>
-      </div>
-
-      <div class="row wrap chips">
-        <button class="btn btn-sm" type="button" (click)="moreOpen = !moreOpen">{{ moreOpen ? 'Fewer filters' : 'More filters' }}</button>
-        <button class="chip on" type="button" *ngFor="let c of activeChips" (click)="c.clear()">{{ c.label }} ×</button>
-        <button class="btn-link" type="button" *ngIf="activeChips.length" (click)="clearAll()">Clear all</button>
-      </div>
-    </section>
-
-    <!-- Stage cards -->
-    <section class="card stages" aria-label="Work order stages">
-      <div class="stage-grid">
-        <button type="button" class="stage" *ngFor="let s of STAGES" (click)="toggleStage(s.k)" [class.on]="f.stage === s.k" [attr.aria-pressed]="f.stage === s.k">
-          <span class="stage-label">{{ s.label }}</span>
-          <span class="stage-count" [style.background]="s.bg" [style.color]="s.fg">{{ nf(counts[s.k] || 0) }}</span>
+    <!-- Project health -->
+    <section class="panel" *ngIf="show.health" aria-labelledby="hH">
+      <div class="sec-title"><h2 id="hH">Project health</h2></div>
+      <div class="tiles">
+        <button type="button" class="tile {{ t.cls }}" *ngFor="let t of tiles" [attr.aria-pressed]="F.status === t.s" (click)="toggleStatus(t.s)">
+          <span class="h">{{ t.s }} <small>{{ t.p }}</small></span><span class="v">{{ nf(t.n) }}</span>
         </button>
       </div>
     </section>
 
-    <div class="card empty" *ngIf="!rows.length">
-      <b>No work orders match these filters</b>
-      <span>Widen the period or <button class="btn-link" type="button" (click)="clearAll()">clear all filters</button>.</span>
-    </div>
-
-    <ng-container *ngIf="rows.length">
-      <!-- Trend + mix -->
-      <div class="two" *ngIf="show.trend">
-        <section class="card">
-          <div class="card-head">
-            <div>
-              <h2 class="h2">Month on month work orders</h2>
-              <p class="sub">Click a month to isolate it · peak {{ nf(maxBar) }}</p>
-            </div>
-            <div class="seg">
-              <button type="button" [class.on]="trendMode === 'priority'" (click)="setTrend('priority')">By priority</button>
-              <button type="button" [class.on]="trendMode === 'sla'" (click)="setTrend('sla')">By SLA</button>
-            </div>
-          </div>
-          <div class="card-body">
-            <div class="bars">
-              <button type="button" class="bar" *ngFor="let b of bars" (click)="isolateMonth(b.key)" [attr.aria-label]="b.label + ': ' + b.value">
-                <span class="bar-val" [class.hot]="b.isolated">{{ b.value }}</span>
-                <span class="bar-col" [style.height.px]="b.height">
-                  <span *ngFor="let g of b.segs" [style.height.%]="g.h" [style.background]="g.fill"></span>
-                </span>
-              </button>
-            </div>
-            <div class="bar-labels">
-              <div *ngFor="let b of bars">
-                <b [class.hot]="b.isolated">{{ b.label }}</b>
-                <small [ngClass]="{ up: (b.delta || 0) > 0, down: (b.delta || 0) < 0 }">{{ b.delta === null ? '—' : (b.delta > 0 ? '+' + b.delta : b.delta) }}</small>
-              </div>
-            </div>
-            <div class="row wrap legend">
-              <span *ngFor="let l of legend" class="row"><i [style.background]="l.fill"></i>{{ l.label }} <b>{{ nf(l.value) }}</b></span>
-            </div>
-          </div>
-        </section>
-
-        <section class="card">
-          <div class="card-head">
-            <div><h2 class="h2">Priority mix &amp; SLA</h2><p class="sub">Priorities grouped by SLA response time</p></div>
-          </div>
-          <div class="card-body">
-            <div class="mix" *ngFor="let m of mix">
-              <div class="row">
-                <b class="mix-label">{{ m.label }}</b><span class="grow muted">{{ m.desc }}</span>
-                <b>{{ nf(m.n) }}</b><span class="muted pctw">{{ m.w.toFixed(1) }}%</span>
-              </div>
-              <div class="track"><span [style.width.%]="m.w" [style.background]="m.fill"></span></div>
-            </div>
-            <div class="row sla">
-              <div class="ring" [style.background]="slaRing"><div><b>{{ slaPct.toFixed(1) }}%</b><small>within SLA</small></div></div>
-              <div class="grow sla-lines">
-                <div class="row"><i class="good"></i><span class="grow">Met</span><b>{{ nf(metN) }}</b></div>
-                <div class="row"><i class="bad"></i><span class="grow">Breached</span><b>{{ nf(rows.length - metN) }}</b></div>
-                <button class="btn-link" type="button" (click)="set('sla', 'Breached')">Show breached only</button>
-              </div>
-            </div>
-          </div>
-        </section>
+    <!-- SLA Dashboard -->
+    <section class="panel" *ngIf="show.sla" aria-labelledby="sH">
+      <div class="sec-title"><h2 id="sH">SLA Dashboard</h2></div>
+      <div class="sheettabs" role="tablist">
+        <button role="tab" type="button" [attr.aria-selected]="sTab === 'ov'" (click)="setSTab('ov')">SLA overview</button>
+        <button role="tab" type="button" [attr.aria-selected]="sTab === 'mom'" (click)="setSTab('mom')">Month on month SLA</button>
+        <button role="tab" type="button" [attr.aria-selected]="sTab === 'prio'" (click)="setSTab('prio')">SLA by priority</button>
+        <button role="tab" type="button" [attr.aria-selected]="sTab === 'mix'" (click)="setSTab('mix')">Priority mix</button>
       </div>
-
-      <!-- Breakdown -->
-      <section class="card block" *ngIf="show.breakdown">
-        <div class="card-head">
-          <div><h2 class="h2">Breakdown — ranked highest to lowest</h2><p class="sub">{{ groupRows.length }} {{ groupDef.label.toLowerCase() }} groups · click a row to filter the dashboard</p></div>
-          <div class="row wrap">
-            <span class="eyebrow">Group by</span>
-            <div class="seg wrap">
-              <button type="button" *ngFor="let g of groupDefs" [class.on]="group === g.k" (click)="setGroup(g.k)">{{ g.label }}</button>
+      <div class="tabbody" role="tabpanel">
+        <div class="empty" *ngIf="!sla">No tickets match these filters.</div>
+        <ng-container *ngIf="sla as v">
+          <ng-container *ngIf="v.tab === 'ov'">
+            <div class="cards"><ng-container *ngTemplateOutlet="cardsTpl; context: { $implicit: v.cards }"></ng-container></div>
+            <div class="insights">
+              <div class="ins" *ngFor="let i of v.insights" [class.warn]="i.warn">
+                <ng-container *ngIf="!i.best"><b>{{ i.b }}</b>{{ i.t }}</ng-container>
+                <ng-container *ngIf="i.best">Best month: <b>{{ i.best }}</b>. Lowest: <b>{{ i.worst }}</b>.</ng-container>
+              </div>
             </div>
-            <select class="select topn" [ngModel]="topN" (ngModelChange)="setTopN($event)" aria-label="Rows shown">
-              <option [ngValue]="10">Top 10</option><option [ngValue]="15">Top 15</option><option [ngValue]="25">Top 25</option><option [ngValue]="9999">Show all</option>
-            </select>
-            <button class="btn btn-sm" type="button" (click)="exportBreakdown()">CSV</button>
-          </div>
-        </div>
-        <div class="table-wrap">
-          <table class="table">
-            <thead><tr>
-              <th>Rank</th><th>{{ groupDef.header }}</th>
-              <th *ngFor="let k of months; let i = index" class="num sortable" [class.sorted]="sortKey === i" (click)="sortBy(i)">{{ monthShort(k) }}{{ arrow(sortKey === i, sortDir) }}</th>
-              <th class="num sortable" [class.sorted]="sortKey === 'total'" (click)="sortBy('total')">Total{{ arrow(sortKey === 'total', sortDir) }}</th>
-              <th class="num">% of total</th><th class="share">Share</th>
-            </tr></thead>
-            <tbody>
-              <tr class="click" *ngFor="let r of shownRows; let i = index" (click)="drill(r)">
-                <td class="rank">{{ i + 1 }}</td>
-                <td><span class="strong">{{ r.name }}</span><span class="small">{{ r.sub }}</span></td>
-                <td class="num" *ngFor="let v of r.cells" [class.zero]="!v">{{ v || '–' }}</td>
-                <td class="num strong">{{ nf(r.total) }}</td>
-                <td class="num">{{ pct(r.total, rows.length) }}</td>
-                <td><span class="track thin"><span [style.width.%]="r.total / grandMax * 100" [style.background]="i === 0 ? '#B0102A' : i < 3 ? '#D8324C' : '#F0A6B3'"></span></span></td>
-              </tr>
-              <tr class="foot">
-                <td></td><td class="strong">Total shown</td>
-                <td class="num strong" *ngFor="let v of footCells">{{ nf(v) }}</td>
-                <td class="num brand">{{ nf(footTotal) }}</td><td class="num strong">{{ pct(footTotal, rows.length) }}</td><td></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+            <div class="split">
+              <div class="viz"><h3>SLA % by month</h3><div class="svgbox" [innerHTML]="v.line"></div></div>
+              <div class="viz"><h3>SLA % by priority</h3>
+                <div class="hbars">
+                  <div class="hb" *ngFor="let b of v.bars" role="button" tabindex="0" (click)="onlyPrio(b.i)" (keydown.enter)="onlyPrio(b.i)">
+                    <span class="nm"><b [ngStyle]="{ color: 'var(' + b.p.c + ')' }">{{ b.p.k }}</b> {{ b.p.n }}<small>{{ b.count }}</small></span>
+                    <span class="bar"><span [ngStyle]="{ width: b.width + '%', background: 'var(' + b.color + ')' }"></span></span>
+                    <span class="n">{{ f1(b.value) }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
 
-      <!-- Remote areas -->
-      <section class="card block" *ngIf="show.remote && remoteRows.length">
-        <div class="card-head">
-          <div><h2 class="h2">High effort areas — very remote locations</h2><p class="sub">{{ remoteRows.length }} locations beyond a 60k-population catchment</p></div>
-          <span class="warn-pill">{{ nf(remoteHits) }} in current filter</span>
-        </div>
-        <div class="table-wrap remote">
-          <table class="table">
-            <thead><tr><th>City / area</th><th>State</th><th>Zip</th><th>Nearest city (60k+)</th><th class="num">Work orders</th></tr></thead>
-            <tbody>
-              <tr *ngFor="let r of remoteRows">
-                <td class="strong">{{ r.city }}</td><td>{{ r.state }}</td><td class="muted">{{ r.pin }}</td><td>{{ r.nearest }}</td>
-                <td class="num strong" [class.zero]="!r.n">{{ r.n }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="card-foot muted">Matched to your work orders by zip code. Driving distance is usually 20–40% longer than straight-line.</div>
-      </section>
+          <ng-container *ngIf="v.tab === 'mom'">
+            <div class="split">
+              <div class="viz"><h3>Met vs breached per month</h3><div class="svgbox" [innerHTML]="v.stack"></div>
+                <ng-container *ngTemplateOutlet="legendTpl; context: { $implicit: v.legend }"></ng-container></div>
+              <div class="viz"><h3>SLA % trend</h3><div class="svgbox" [innerHTML]="v.line"></div></div>
+            </div>
+            <div class="tblwrap"><table>
+              <thead><tr><th class="l">Month</th><th>Total tickets</th><th>SLA met</th><th>SLA breached</th><th>SLA %</th><th>Change vs prior (pts)</th><th>Breach rate</th></tr></thead>
+              <tbody>
+                <tr *ngFor="let r of v.rows"><td class="l month">{{ r.label }}</td><td>{{ nf(r.n) }}</td><td>{{ nf(r.met) }}</td>
+                  <td [class.z]="!r.b">{{ r.b || '–' }}</td><td><b>{{ r.p }}</b></td>
+                  <td [class.down]="r.d > 0" [class.up]="r.d < 0">{{ r.d == null ? '–' : (r.d > 0 ? '+' : '') + r.d.toFixed(1) }}</td><td>{{ r.rate }}</td></tr>
+                <tr class="total"><td class="l">Total</td><td>{{ nf(v.total.n) }}</td><td>{{ nf(v.total.met) }}</td><td>{{ v.total.b }}</td><td>{{ v.total.p }}</td><td>–</td><td>{{ v.total.rate }}</td></tr>
+              </tbody>
+            </table></div>
+            <p class="note">SLA % = tickets resolved within SLA ÷ total tickets.</p>
+          </ng-container>
 
-      <!-- Detail -->
-      <section class="card block" *ngIf="show.detail">
-        <div class="card-head">
-          <div><h2 class="h2">Work order detail</h2><p class="sub">{{ nf(sorted.length) }} rows</p></div>
-          <div class="row">
-            <button class="btn btn-sm" type="button" (click)="customizeOpen = true">Columns</button>
-            <button class="btn btn-sm" type="button" (click)="exportDetail()">CSV</button>
-          </div>
+          <ng-container *ngIf="v.tab === 'prio'">
+            <div class="cards"><ng-container *ngTemplateOutlet="cardsTpl; context: { $implicit: v.cards }"></ng-container></div>
+            <div class="tblwrap"><table>
+              <thead>
+                <tr><th class="l" rowspan="2">Month</th><th class="grp" colspan="3" *ngFor="let p of PRIO">{{ p.k }} · {{ p.n }}</th><th class="grp" colspan="3">All priorities</th></tr>
+                <tr><ng-container *ngFor="let x of [0,1,2,3,4]"><th class="bl">Tickets</th><th>Breached</th><th>SLA %</th></ng-container></tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let r of v.rows"><td class="l month">{{ r.label }}</td>
+                  <ng-container *ngFor="let c of r.cells"><td class="bl" [class.z]="!c.n">{{ c.n ? nf(c.n) : '–' }}</td><td [class.z]="!c.b">{{ c.b || '–' }}</td><td [class.z]="!c.n">{{ c.p }}</td></ng-container></tr>
+                <tr class="total"><td class="l">Total</td>
+                  <ng-container *ngFor="let c of v.total"><td class="bl">{{ c.n ? nf(c.n) : '–' }}</td><td>{{ c.b || '–' }}</td><td>{{ c.p }}</td></ng-container></tr>
+              </tbody>
+            </table></div>
+            <p class="note">"–" means no tickets of that priority in the month.</p>
+          </ng-container>
+
+          <ng-container *ngIf="v.tab === 'mix'">
+            <div class="split">
+              <div class="viz"><h3>Priority mix</h3>
+                <div class="prio">
+                  <div class="pr" *ngFor="let m of v.mix" [class.dim]="m.dim" role="button" tabindex="0" (click)="onlyPrio(m.i)" (keydown.enter)="onlyPrio(m.i)">
+                    <div class="top"><span class="code" [ngStyle]="{ color: 'var(' + m.p.c + ')' }">{{ m.p.k }}</span>
+                      <span class="name"><b>{{ m.p.n }}</b> — {{ m.p.r }}</span><span class="n">{{ nf(m.n) }}</span><span class="pc">{{ m.pc }}</span></div>
+                    <div class="track"><span [ngStyle]="{ width: m.width + '%', background: 'var(' + m.p.c + ')' }"></span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="viz"><h3>Priority by month</h3><div class="svgbox" [innerHTML]="v.stack"></div>
+                <ng-container *ngTemplateOutlet="legendTpl; context: { $implicit: v.legend }"></ng-container></div>
+            </div>
+            <div class="tblwrap"><table>
+              <thead><tr><th class="l">Category</th><th *ngFor="let m of v.months">{{ m.label }}</th><th class="sorted">Total ↓</th><th>% of total</th></tr></thead>
+              <tbody>
+                <tr *ngFor="let r of v.rows"><td class="l month"><span class="pdot" [ngStyle]="{ background: 'var(' + r.p.c + ')' }"></span><b>{{ r.p.k }}</b> · {{ r.p.n }}</td>
+                  <td *ngFor="let c of r.cells" [class.hc]="!!c.v" [class.z]="!c.v" [ngStyle]="c.style">{{ c.v ? nf(c.v) : '–' }}</td>
+                  <td class="tot">{{ nf(r.n) }}</td><td>{{ r.pc }}</td></tr>
+                <tr class="total"><td class="l">Total</td><td *ngFor="let m of v.months">{{ nf(m.n) }}</td><td>{{ nf(v.total) }}</td><td>100.0%</td></tr>
+              </tbody>
+            </table></div>
+          </ng-container>
+        </ng-container>
+      </div>
+    </section>
+
+    <!-- Trend analysis -->
+    <section class="panel" *ngIf="show.trend" aria-labelledby="dH">
+      <div class="sec-title"><h2 id="dH">Trend analysis</h2></div>
+      <div class="sheettabs" role="tablist">
+        <button role="tab" type="button" [attr.aria-selected]="dTab === 'types'" (click)="setDTab('types')">Dispatch, scheduled visits &amp; backfill</button>
+        <button role="tab" type="button" [attr.aria-selected]="dTab === 'sum'" (click)="setDTab('sum')">Month on month summary</button>
+        <button role="tab" type="button" [attr.aria-selected]="dTab === 'state'" (click)="setDTab('state')">Month on month by state</button>
+        <button role="tab" type="button" [attr.aria-selected]="dTab === 'city'" (click)="setDTab('city')">Month on month by city</button>
+      </div>
+      <div class="tabbody" role="tabpanel">
+        <div class="empty" *ngIf="!trend">No visits match these filters. Try widening the period or clearing a filter.</div>
+        <ng-container *ngIf="trend as v">
+          <ng-container *ngIf="v.tab === 'types'">
+            <div class="tabtools"><span class="muted-sm">{{ v.summary }}</span></div>
+            <div class="cards"><ng-container *ngTemplateOutlet="cardsTpl; context: { $implicit: v.cards }"></ng-container></div>
+            <div class="viz"><h3>Visits per month by type</h3><div class="svgbox wide" [innerHTML]="v.stack"></div>
+              <ng-container *ngTemplateOutlet="legendTpl; context: { $implicit: v.legend }"></ng-container></div>
+            <div class="tblwrap"><table>
+              <thead><tr><th class="l">Month</th><th *ngFor="let t of TYPES">{{ t.k }}</th><th>Total visits</th><th>Avg visit time</th><th>Full-day visits</th></tr></thead>
+              <tbody>
+                <tr *ngFor="let r of v.rows"><td class="l month">{{ r.label }}</td><td *ngFor="let n of r.types" [class.z]="!n">{{ n || '–' }}</td>
+                  <td class="tot">{{ nf(r.n) }}</td><td>{{ r.avg }}</td><td [class.z]="!r.full">{{ r.full || '–' }}</td></tr>
+                <tr class="total"><td class="l">Total</td><td *ngFor="let n of v.total.types">{{ nf(n) }}</td><td>{{ nf(v.total.n) }}</td><td>{{ v.total.avg }}</td><td>{{ v.total.full }}</td></tr>
+              </tbody>
+            </table></div>
+          </ng-container>
+
+          <ng-container *ngIf="v.tab === 'sum'">
+            <div class="cards"><ng-container *ngTemplateOutlet="cardsTpl; context: { $implicit: v.cards }"></ng-container></div>
+            <div class="viz"><h3>Dispatch visits per month</h3><div class="svgbox wide" [innerHTML]="v.stack"></div>
+              <ng-container *ngTemplateOutlet="legendTpl; context: { $implicit: v.legend }"></ng-container></div>
+            <div class="tblwrap"><table>
+              <thead><tr><th class="l">Month</th><th>Dispatch visits</th><th>% of total</th><th>Change vs prior</th><th>% change</th><th class="bl" *ngFor="let p of PRIO">{{ p.k }}</th></tr></thead>
+              <tbody>
+                <tr *ngFor="let r of v.rows"><td class="l month">{{ r.label }}</td>
+                  <td [class.hc]="!!r.n.v" [ngStyle]="r.n.style">{{ nf(r.n.v) }}</td><td>{{ r.share }}</td>
+                  <td [class.up]="r.d > 0" [class.down]="r.d < 0">{{ signed(r.d) }}</td><td [class.up]="r.d > 0" [class.down]="r.d < 0">{{ r.dp }}</td>
+                  <td *ngFor="let n of r.prio; let i = index" [class.bl]="i === 0" [class.z]="!n">{{ n || '–' }}</td></tr>
+                <tr class="total"><td class="l">Total</td><td>{{ nf(v.total.n) }}</td><td>100.0%</td><td>–</td><td>–</td><td *ngFor="let n of v.total.prio">{{ nf(n) }}</td></tr>
+              </tbody>
+            </table></div>
+          </ng-container>
+
+          <ng-container *ngIf="v.tab === 'state' || v.tab === 'city'">
+            <div class="split">
+              <div class="viz"><h3>Top 10 {{ v.isCity ? 'cities' : 'states' }}</h3>
+                <div class="hbars">
+                  <div class="hb" *ngFor="let o of v.top10" role="button" tabindex="0" (click)="pickPlace(o.k)" (keydown.enter)="pickPlace(o.k)"
+                    [attr.title]="'Filter the dashboard to ' + o.name">
+                    <span class="nm">{{ o.name }}<small>{{ o.sub }}</small></span>
+                    <span class="bar"><span [ngStyle]="{ width: o.width + '%' }"></span></span><span class="n">{{ o.n }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="viz"><h3>Visits per month</h3><div class="svgbox" [innerHTML]="v.perMonth"></div></div>
+            </div>
+            <div class="tabtools">
+              <span class="muted-sm">{{ v.count }} {{ v.isCity ? 'cities' : 'states' }} ranked highest to lowest · stronger shading means more visits</span>
+              <label><span class="lbl">Show</span>
+                <select class="sel sm" [ngModel]="topN" (ngModelChange)="setTopN($event)">
+                  <option [ngValue]="10">Top 10</option><option [ngValue]="15">Top 15</option><option [ngValue]="30">Top 30</option><option [ngValue]="999">All</option>
+                </select></label>
+            </div>
+            <div class="tblwrap"><table>
+              <thead><tr><th>Rank</th><th class="l">{{ v.isCity ? 'City' : 'State' }}</th><th class="l">{{ v.isCity ? 'State' : 'Code' }}</th><th class="l">Region</th>
+                <th *ngFor="let m of v.months">{{ m }}</th><th class="sorted">Total ↓</th><th>% of total</th><th>Cumulative %</th></tr></thead>
+              <tbody>
+                <tr *ngFor="let o of v.rows" class="click" (click)="pickPlace(o.k)"><td>{{ o.rank }}</td><td class="l"><b>{{ o.name }}</b></td><td class="l">{{ o.sub }}</td><td class="l">{{ o.region }}</td>
+                  <td *ngFor="let c of o.cells" [class.hc]="!!c.v" [class.z]="!c.v" [ngStyle]="c.style">{{ c.v || '–' }}</td>
+                  <td class="tot">{{ o.n }}</td><td>{{ o.share }}</td><td>{{ o.cum }}</td></tr>
+              </tbody>
+            </table></div>
+          </ng-container>
+        </ng-container>
+      </div>
+    </section>
+
+    <!-- High effort areas -->
+    <section class="panel" *ngIf="show.he">
+      <div class="ph"><div><h2>High effort areas</h2></div></div>
+      <div class="tblwrap">
+        <table *ngIf="he.length; else noHe">
+          <thead><tr><th>#</th><th class="l">City / area</th><th class="l">State</th><th class="l">Zip</th><th class="l">Nearest city (60,000+)</th><th>Dispatches</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let r of he"><td>{{ r.rank }}</td><td class="l strong">{{ r.city }}</td><td class="l">{{ r.state }}</td><td class="l mono">{{ r.pin }}</td>
+              <td class="l">{{ r.nearest }}</td><td [class.hc]="!!r.n.v" [class.z]="!r.n.v" [ngStyle]="r.n.style">{{ r.n.v || '–' }}</td></tr>
+            <tr class="total"><td></td><td class="l">Total</td><td></td><td></td><td></td><td>{{ heTotal }}</td></tr>
+          </tbody>
+        </table>
+        <ng-template #noHe><div class="empty">No high effort areas in this selection.</div></ng-template>
+      </div>
+    </section>
+
+    <!-- Tickets -->
+    <section class="panel" *ngIf="show.tickets">
+      <div class="ph"><div><h2>Tickets</h2><p class="sub-note">{{ tkNote }}</p></div>
+        <div class="tabs">
+          <button type="button" *ngFor="let s of STATUSES" [attr.aria-pressed]="tkTab === s" (click)="setTkTab(s)">
+            <span class="sdot {{ s === 'Raised' ? 'raised' : s === 'Ongoing' ? 'ongoing' : s === 'Completed' ? 'done' : 'cancel' }}"></span>{{ s }} <span class="cnt">{{ nf(tkCounts[s]) }}</span>
+          </button>
         </div>
-        <div class="table-wrap">
-          <table class="table detail">
-            <thead><tr>
-              <th>Work order</th>
-              <th class="sortable" [class.sorted]="dSort === 'date'" (click)="sortDetail('date')">Created{{ arrow(dSort === 'date', dDir) }}</th>
-              <th>City / state</th>
-              <th *ngIf="cols.region">Region</th>
-              <th>Priority</th><th>Stage</th>
-              <th *ngIf="cols.visitType">Type of visit</th>
-              <th *ngIf="cols.service">Service</th>
-              <th *ngIf="cols.tech">Technician</th>
-              <th *ngIf="cols.source">Source</th>
-              <th class="num sortable" [class.sorted]="dSort === 'hours'" (click)="sortDetail('hours')">Visit hrs{{ arrow(dSort === 'hours', dDir) }}</th>
-              <th class="num sortable" [class.sorted]="dSort === 'age'" (click)="sortDetail('age')">Ageing{{ arrow(dSort === 'age', dDir) }}</th>
-              <th class="num sortable" *ngIf="cols.billed" [class.sorted]="dSort === 'billed'" (click)="sortDetail('billed')">Billed{{ arrow(dSort === 'billed', dDir) }}</th>
-              <th class="num">SLA</th>
-            </tr></thead>
-            <tbody>
-              <tr *ngFor="let t of pageRows">
-                <td><span class="strong nowrap">{{ t.id }}</span><span class="small" *ngIf="t.clientTicket">Client #{{ t.clientTicket }}</span></td>
-                <td class="nowrap">{{ fmtDate(t.created) }}</td>
-                <td><span class="strong">{{ t.city }}</span><span class="small">{{ t.state }}</span></td>
-                <td *ngIf="cols.region">{{ t.region }}</td>
-                <td><span class="tag" [style.background]="PRC[t.pr].bg" [style.borderColor]="PRC[t.pr].border" [style.color]="PRC[t.pr].color" [title]="t.priorityName">{{ t.pr }}</span></td>
-                <td><span class="badge" [style.background]="stageOf(t.stage).tint" [style.borderColor]="stageOf(t.stage).border" [style.color]="stageOf(t.stage).text"><span class="dot" [style.background]="stageOf(t.stage).dot"></span>{{ stageOf(t.stage).label }}</span></td>
-                <td *ngIf="cols.visitType" class="nowrap">{{ t.visitType }}</td>
-                <td *ngIf="cols.service">{{ t.service }}</td>
-                <td *ngIf="cols.tech" class="nowrap" [class.muted]="!t.hasTechnician">{{ t.technician }}</td>
-                <td *ngIf="cols.source">{{ t.source }}</td>
-                <td class="num strong">{{ t.hours === null ? '—' : t.hours.toFixed(1) + ' h' }}</td>
-                <td class="num" [ngClass]="{ late: t.age > 14, warn: t.age > 7 && t.age <= 14 }">{{ t.age }} d</td>
-                <td class="num strong" *ngIf="cols.billed">{{ money(t.billed) }}</td>
-                <td class="num" [class.good]="t.slaMet" [class.bad]="!t.slaMet" [title]="t.slaReason">{{ t.slaMet ? 'Met' : 'Breached' }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="card-foot">
-          <span class="muted">Showing {{ nf((page - 1) * perPage + 1) }}–{{ nf(page * perPage > sorted.length ? sorted.length : page * perPage) }} of {{ nf(sorted.length) }}</span>
-          <div class="row">
-            <select class="select per" [ngModel]="perPage" (ngModelChange)="setPerPage($event)" aria-label="Rows per page">
-              <option [ngValue]="10">10 rows</option><option [ngValue]="25">25 rows</option><option [ngValue]="50">50 rows</option>
-            </select>
-            <button class="btn btn-sm" type="button" [disabled]="page <= 1" (click)="goPage(page - 1)">Prev</button>
-            <button class="btn btn-sm" type="button" [disabled]="page >= pages" (click)="goPage(page + 1)">Next</button>
-          </div>
-        </div>
-      </section>
-    </ng-container>
+      </div>
+      <div class="tblwrap">
+        <table *ngIf="tkList.length; else noTk">
+          <thead><tr><th class="l">Work order</th><th class="l">Visit type</th><th class="l">{{ tkTab === 'Completed' ? 'Visit date' : 'Raised on' }}</th><th class="l">Priority</th>
+            <th class="l">City</th><th class="l">State</th><th class="l">Region</th><th>{{ tkTab === 'Completed' ? 'Visit time' : 'Age' }}</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let t of tkList" class="click" (click)="openTicket(t)" [attr.title]="'Open ' + t.id">
+              <td class="l mono strong">{{ t.id }}<span class="note-chip" *ngIf="t.clientTicket">{{ t.clientTicket }}</span></td>
+              <td class="l"><span class="type-dot" [ngStyle]="{ background: 'var(' + TYPES[typeOf(t)].c + ')' }"></span>{{ TYPES[typeOf(t)].k }}</td>
+              <td class="l">{{ fmtDate(tkTab === 'Completed' ? t.visit : t.created) }}</td>
+              <td class="l"><span class="pdot" [ngStyle]="{ background: 'var(' + PRIO[prioOf(t)].c + ')' }"></span>{{ t.pr }} · {{ PRIO[prioOf(t)].n }}</td>
+              <td class="l">{{ t.city }}</td><td class="l">{{ t.state }}</td><td class="l">{{ t.region }}</td>
+              <td>{{ tkTab === 'Completed' ? hrs(t.hours) : t.age + 'd' }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <ng-template #noTk><div class="empty">No {{ tkTab.toLowerCase() }} tickets match these filters.</div></ng-template>
+      </div>
+      <div class="more" *ngIf="tkAll.length > tkShow"><button class="btn" type="button" (click)="tkShow = tkShow + 10">Show 10 more</button></div>
+    </section>
   </ng-container>
 </main>
 
-<!-- Customise panel -->
-<ng-container *ngIf="customizeOpen">
-  <div class="scrim" (click)="customizeOpen = false"></div>
-  <aside class="drawer" role="dialog" aria-modal="true" aria-label="Customise dashboard">
-    <div class="drawer-head">
-      <h2 class="h2 grow">Customise dashboard</h2>
-      <button class="icon-btn" type="button" (click)="customizeOpen = false" aria-label="Close">×</button>
-    </div>
-    <div class="drawer-body">
-      <div class="eyebrow gap">Sections</div>
-      <div class="card">
-        <div class="toggle-row" *ngFor="let s of SECTIONS">
-          <span class="grow"><b>{{ s.label }}</b><small>{{ s.desc }}</small></span>
-          <button class="switch" type="button" [class.on]="show[s.k]" (click)="toggleSection(s.k)" [attr.aria-label]="s.label"><span></span></button>
-        </div>
-      </div>
-      <div class="eyebrow gap top">Detail table columns</div>
-      <div class="row wrap">
-        <button class="chip" type="button" *ngFor="let c of COLUMNS" [class.on]="cols[c.k]" (click)="toggleColumn(c.k)">{{ cols[c.k] ? '✓' : '+' }} {{ c.label }}</button>
-      </div>
-      <div class="eyebrow gap top">Default grouping</div>
-      <div class="row wrap">
-        <button class="chip" type="button" *ngFor="let g of groupDefs" [class.on]="group === g.k" (click)="setGroup(g.k)">{{ g.label }}</button>
-      </div>
-      <p class="muted note">These choices are remembered on this browser.</p>
-    </div>
-  </aside>
-</ng-container>
-
-<!-- Export -->
-<ng-container *ngIf="exportOpen">
-  <div class="scrim" (click)="exportOpen = false"></div>
-  <div class="modal-wrap">
-    <div class="modal" role="dialog" aria-modal="true" aria-label="Export">
-      <div class="drawer-head"><h2 class="h2 grow">Export CSV</h2><button class="icon-btn" type="button" (click)="exportOpen = false" aria-label="Close">×</button></div>
-      <div class="card-body">
-        <p class="muted intro">Exports respect every filter currently applied — {{ nf(rows.length) }} work orders.</p>
-        <button type="button" class="opt" [class.on]="exportScope === 'detail'" (click)="exportScope = 'detail'"><i></i><span><b>Work order detail</b><small>{{ nf(rows.length) }} rows · every field</small></span></button>
-        <button type="button" class="opt" [class.on]="exportScope === 'breakdown'" (click)="exportScope = 'breakdown'"><i></i><span><b>Ranked breakdown</b><small>{{ groupRows.length }} {{ groupDef.label.toLowerCase() }} rows · month columns</small></span></button>
-        <button type="button" class="opt" [class.on]="exportScope === 'summary'" (click)="exportScope = 'summary'"><i></i><span><b>Stage summary</b><small>7 stages + SLA figures</small></span></button>
-      </div>
-      <div class="card-foot"><span></span><div class="row"><button class="btn" type="button" (click)="exportOpen = false">Cancel</button><button class="btn btn-primary" type="button" (click)="runExport()">Download CSV</button></div></div>
-    </div>
+<ng-template #cardsTpl let-cards>
+  <div class="card" *ngFor="let c of cards" [class.good]="c.cls === 'good'" [class.bad]="c.cls === 'bad'">
+    <span class="k"><i *ngIf="c.dot" [ngStyle]="{ background: 'var(' + c.dot + ')' }"></i>{{ c.k }}</span>
+    <span class="v">{{ c.v }}</span><span class="s">{{ c.s }}</span>
   </div>
-</ng-container>
+</ng-template>
+<ng-template #legendTpl let-legend>
+  <div class="legend2"><span *ngFor="let l of legend"><i [ngStyle]="{ background: 'var(' + l[1] + ')' }"></i>{{ l[0] }}</span></div>
+</ng-template>
 
-<!-- Save view -->
-<ng-container *ngIf="saveOpen">
-  <div class="scrim" (click)="saveOpen = false"></div>
-  <div class="modal-wrap">
-    <form class="modal" role="dialog" aria-modal="true" aria-label="Save view" (ngSubmit)="saveView()">
-      <div class="drawer-head"><h2 class="h2 grow">Save this view</h2><button class="icon-btn" type="button" (click)="saveOpen = false" aria-label="Close">×</button></div>
-      <div class="card-body">
-        <p class="muted intro">Saved views sit above the filters for one-click recall on this browser.</p>
-        <label class="field"><span>Name</span><input class="input" name="name" [(ngModel)]="saveName" placeholder="e.g. Northeast P1 review" autofocus></label>
-        <p class="muted captured">{{ months.length }} months · grouped by {{ groupDef.label.toLowerCase() }}<ng-container *ngFor="let c of activeChips"> · {{ c.label }}</ng-container></p>
-      </div>
-      <div class="card-foot"><span></span><div class="row"><button class="btn" type="button" (click)="saveOpen = false">Cancel</button><button class="btn btn-primary" type="submit">Save view</button></div></div>
-    </form>
+<!-- Customise -->
+<div class="overlay" *ngIf="customizeOpen" (click)="customizeOpen = false">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Customise dashboard" (click)="$event.stopPropagation()">
+    <header><div><h2>Customise dashboard</h2><p>Pick the sections to show · remembered on this browser</p></div>
+      <button class="x" type="button" (click)="customizeOpen = false" aria-label="Close">×</button></header>
+    <div class="custlist">
+      <label class="custrow" *ngFor="let s of SECTIONS">
+        <span><b>{{ s.label }}</b><small>{{ s.desc }}</small></span>
+        <input type="checkbox" [checked]="show[s.k]" (change)="toggleSection(s.k)">
+      </label>
+    </div>
+    <footer><button class="btn primary" type="button" (click)="customizeOpen = false">Done</button></footer>
   </div>
-</ng-container>
+</div>
+
+<!-- Save report -->
+<div class="overlay" *ngIf="saveOpen" (click)="saveOpen = false">
+  <form class="modal" role="dialog" aria-modal="true" aria-label="Save report" (click)="$event.stopPropagation()" (ngSubmit)="saveReport()">
+    <header><div><h2>Save report</h2><p>{{ filterSummary() }}</p></div>
+      <button class="x" type="button" (click)="saveOpen = false" aria-label="Close">×</button></header>
+    <div class="form">
+      <div class="f full"><label for="saveName">Name</label>
+        <input id="saveName" class="txt" name="saveName" [(ngModel)]="saveName" maxlength="60" placeholder="e.g. Monthly ops review" autofocus></div>
+      <p class="note full">Saved reports sit above the filters for one-click recall on this browser.</p>
+    </div>
+    <footer><button class="btn" type="button" (click)="saveOpen = false">Cancel</button><button class="btn primary" type="submit">Save report</button></footer>
+  </form>
+</div>

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, finalize, map, shareReplay, switchMap, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, finalize, map, shareReplay, switchMap } from 'rxjs';
 import { ApiService } from './api.service';
 import { STATE_CODES, monthKey, titleCase } from './format';
 import { Priority, RemoteArea, STAGE_BY_STATUS, Ticket } from './models';
@@ -37,8 +37,6 @@ export class DataService {
 
   private cache$: Observable<PortalData> | null = null;
   private customers$: Observable<CustomerOption[]> | null = null;
-  /** The header's Customise button; the dashboard opens its Customise panel on it. */
-  readonly customise$ = new Subject<void>();
 
   constructor(private api: ApiService, private session: SessionService) {}
 

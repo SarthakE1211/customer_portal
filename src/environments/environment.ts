@@ -2,6 +2,7 @@
 // shared Vantage backend; that domain must be the backend's PORTAL_ORIGIN.
 export const environment = {
   production: true,
+  version: '1.0.0',
   apiUrl: 'https://console.ovationwps.com/auth/',
   // Same browser key as the admin panel (Maps JavaScript API).
   googleMapsApiKey: 'AIzaSyBOL8XUOxJicHzlQRGi27Wdn5M3zazFKTU',

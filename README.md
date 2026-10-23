@@ -23,9 +23,11 @@ registration; otherwise Microsoft rejects the sign-in.
 
 ## Pages
 
-- **Dashboard**: stage cards, month-on-month trend, priority mix and SLA, ranked breakdown,
-  high-effort remote areas, and a work order detail table. Filters, saved views, the Customise
-  panel and CSV export are kept per browser.
+- **Dashboard** (the "Vantage Customer Dashboard" design): toolbar with search, Customise, Save report,
+  Schedule (not available yet) and Export (PDF, PowerPoint or CSV, summary or full detail); filters
+  (period, region, state, city, priority); Project health tiles; SLA Dashboard and Trend analysis
+  (tabbed); High effort areas; Tickets by status. Raised = created, accepted or scheduled;
+  Cancelled includes rejected. Customise choices and saved reports are kept per browser.
 - **Work orders**: grid and list views, search, stage and priority filters, CSV export.
 - **Reports**: the Customer work order report.
 - **Raise a ticket**: the admin form field for field (ng-zorro selects, date and time pickers, SPOC

@@ -1,7 +1,8 @@
 // ng serve on http://localhost:4701, which is the backend's INTERNAL_PORTAL_ORIGIN.
 export const environment = {
   production: false,
-  apiUrl: 'https://preconsole.ovationwps.com/auth/',
+  version: '1.0.0',
+  apiUrl: 'https://5d6zswg0-7850.inc1.devtunnels.ms/auth/',
   // Same browser key as the admin panel (Maps JavaScript API).
   googleMapsApiKey: 'AIzaSyBOL8XUOxJicHzlQRGi27Wdn5M3zazFKTU',
   // Same Entra ID app as the admin panel; add this site's origin as an SPA redirect URI.
